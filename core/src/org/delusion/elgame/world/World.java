@@ -1,6 +1,7 @@
 package org.delusion.elgame.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
@@ -25,10 +26,13 @@ public class World implements SimpleRenderable {
             .evictionListener(Chunk::evictionListener)
             .buildAsync(pos -> new Chunk(this, pos));
     private final SpriteBatch batch;
+    private final SpriteBatch entityBatch;
 
     public World(ElGame game) {
         this.game = game;
         batch = new SpriteBatch();
+        entityBatch = new SpriteBatch();
+
     }
 
     public CompletableFuture<TileType> getTile(int x, int y) {
@@ -87,6 +91,15 @@ public class World implements SimpleRenderable {
         }
 
         batch.end();
+
+        renderEntities();
+    }
+
+    void renderEntities() {
+        entityBatch.setTransformMatrix(game.getPlayer().getCamera().view);
+        entityBatch.begin();
+        game.getPlayer().render();
+        entityBatch.end();
     }
 
     private void renderChunk(int cx, int cy) {
@@ -99,5 +112,10 @@ public class World implements SimpleRenderable {
 
     public void linkToPlayer(Player player) {
         batch.setProjectionMatrix(player.getCamera().projection);
+        entityBatch.setProjectionMatrix(player.getCamera().projection);
+    }
+
+    public Batch getEntityBatch() {
+        return entityBatch;
     }
 }
