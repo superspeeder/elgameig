@@ -9,8 +9,21 @@ buildscript {
         google()
     }
     dependencies {
-        
+        classpath "com.badlogicgames.gdx:gdx-tools:1.10.0"
 
+    }
+}
+
+project.ext.texturePacker = [ "textures/", "core/assets/textures/", "tileAtlas" ]
+
+import com.badlogic.gdx.tools.texturepacker.TexturePacker
+
+task texturePacker {
+    doLast {
+        if (project.ext.has('texturePacker')) {
+            logger.info "Calling TexturePacker: "+texturePacker
+            TexturePacker.process(texturePacker[0], texturePacker[1], texturePacker[2])
+        }
     }
 }
 
