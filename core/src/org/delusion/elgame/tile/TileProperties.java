@@ -1,29 +1,48 @@
 package org.delusion.elgame.tile;
 
 public class TileProperties {
-    private boolean solid = true;
-    private boolean visible = true;
+    public final boolean solid;
+    public final boolean visible;
 
-    public TileProperties() {
+    public TileProperties(boolean solid, boolean visible) {
+        this.solid = solid;
+        this.visible = visible;
     }
 
-    public TileProperties solid() {
-        solid = true;
-        return this;
+    static Builder builder() {
+        return new Builder();
     }
 
-    public TileProperties intangible() {
-        solid = false;
-        return this;
-    }
+    static class Builder {
 
-    public TileProperties visible() {
-        visible = true;
-        return this;
-    }
-    public TileProperties invisible() {
-        visible = false;
-        return this;
-    }
+        private boolean solid = true;
+        private boolean visible = true;
 
+        private Builder() {
+        }
+
+        public Builder solid() {
+            solid = true;
+            return this;
+        }
+
+        public Builder intangible() {
+            solid = false;
+            return this;
+        }
+
+        public Builder visible() {
+            visible = true;
+            return this;
+        }
+
+        public Builder invisible() {
+            visible = false;
+            return this;
+        }
+
+        public TileProperties build() {
+            return new TileProperties(solid, visible);
+        }
+    }
 }
