@@ -29,7 +29,7 @@ public class Player implements SimpleRenderable {
 
     public Player(World world) {
         this.world = world;
-        position = new Vector2(0,256);
+        position = new Vector2(0,32);
         velocity = new Vector2(0,0);
         acceleration = new Vector2(0,0);
         camera = new OrthographicCamera(1920, 1080);
@@ -68,26 +68,26 @@ public class Player implements SimpleRenderable {
         grounded = false;
         velocity.x = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            velocity.x = -SPEED * dt;
+            velocity.x = -SPEED;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            velocity.x = SPEED * dt;
+            velocity.x = SPEED;
         }
 
-        position.x += velocity.x;
+        position.x += velocity.x * dt;
         internalSprite.setPosition(position.x,position.y);
 
         checkCollisionsX();
 
-        velocity.y -= 60 * dt;
-        position.y += velocity.y;
+        velocity.y -= 1100 * dt;
+        position.y += velocity.y * dt;
         internalSprite.setPosition(position.x,position.y);
         checkCollisionsY();
 
         if (!grounded) framesSinceGrounded++;
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.W) && framesSinceGrounded < 10 && !jumpedSinceGrounded) {
-            velocity.y += 20;
+            velocity.y += 500;
             jumpedSinceGrounded = true;
         }
 

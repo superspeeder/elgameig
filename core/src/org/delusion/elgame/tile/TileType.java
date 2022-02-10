@@ -11,6 +11,7 @@ import java.util.Map;
 public enum TileType {
     Air(0, "Air", TileProperties.builder().intangible().invisible().build(), null),
     Dirt(1, "Dirt", TileProperties.builder().build(), "tile"),
+    StoneTile(2, "Stone Tile", TileProperties.builder().build(), "tile"),
     ;
 
 

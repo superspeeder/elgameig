@@ -1,0 +1,22 @@
+- [x] Base World Class
+- [x] Chunks
+- [x] Find a good cache library
+- [x] Player sprite rendering
+- [x] Player physics
+- [x] Debug UI
+- [ ] Background Tiles
+- [ ] World Generation
+  - [ ] Mapping various criteria to noise maps
+    - [ ] Humidity
+    - [ ] Precipitation
+    - [ ] air pressure
+    - [ ] Temperature
+  - [ ] Geological Features
+    - [ ] faults
+      - [ ] generate mountains at fault-line chunks
+      - [ ] generate fault-line chunks using a threshold on a noise map
+        - [ ] use another noise function which is designed to have ridges at these lines to decide the strength of the fault-line
+        - [ ] Strength of fault determines how extreme/tall the mountains will be
+        - [ ] if strength is high enough, the mountain may be a volcano.
+  - [ ] Structures
+
