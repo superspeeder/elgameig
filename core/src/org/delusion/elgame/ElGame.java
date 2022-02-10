@@ -1,46 +1,16 @@
 package org.delusion.elgame;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.screens.MainGameScreen;
+import org.delusion.elgame.screens.MainMenuScreen;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.world.World;
 
 /**
  *
  * Main class for the game
- * Home of many things! (mainly the to-do list)
- *
- * DONE: Base World Class
- * DONE: Chunks
- * DONE: Find a good cache library
- * DONE: Caching chunks for threaded generation
- * TODO: Player Sprite Rendering
- * TODO: Player Physics
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- * TODO:
- *
  */
 
 public class ElGame extends Game {
@@ -48,6 +18,7 @@ public class ElGame extends Game {
 	private MainGameScreen mainGameScreen;
 	private Player player;
 	private World world;
+	private MainMenuScreen mainMenuScreen;
 
 
 	@Override
@@ -57,7 +28,9 @@ public class ElGame extends Game {
 		player = new Player(world);
 
 		mainGameScreen = new MainGameScreen(this);
-		setScreen(mainGameScreen);
+
+		mainMenuScreen = new MainMenuScreen(this);
+		setScreen(mainMenuScreen);
 	}
 
 	@Override
@@ -75,5 +48,9 @@ public class ElGame extends Game {
 
 	public World getWorld() {
 		return world;
+	}
+
+	public MainMenuScreen getMainMenuScreen() {
+		return mainMenuScreen;
 	}
 }

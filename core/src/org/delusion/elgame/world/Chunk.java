@@ -32,10 +32,14 @@ public class Chunk implements Disposable {
         int localX = 0;
         for (int x = bounds.left ; x < bounds.right ; x++) {
             int localY = 0;
-            int h = (int)(20 * Math.sin(x / 20.0)) + 20;
+            int h = 0;
             for (int y = bounds.bottom ; y < bounds.top ; y++) {
                 if (y < h) {
                     set(localX, localY, TileType.Dirt);
+                } else if (y == 14) {
+                    set(localX, localY, TileType.StoneTile);
+                } else if (y == 15 && x % 5 == 0) {
+                    set(localX, localY, TileType.StoneTile);
                 } else {
                     set(localX, localY, TileType.Air);
                 }
@@ -43,6 +47,7 @@ public class Chunk implements Disposable {
             }
             localX++;
         }
+
 
     }
 

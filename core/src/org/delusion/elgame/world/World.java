@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class World implements SimpleRenderable {
 
-    public static final int TILE_SIZE = 8;
+    public static final int TILE_SIZE = 16;
     private static final long MAX_CHUNKS = 100;
 
     private final ElGame game;
