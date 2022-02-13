@@ -1,7 +1,7 @@
 package org.delusion.elgame;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Screen;
+import org.delusion.elgame.menu.Slot;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.screens.MainGameScreen;
 import org.delusion.elgame.screens.MainMenuScreen;
@@ -24,6 +24,8 @@ public class ElGame extends Game {
 	@Override
 	public void create () {
 		TileType.load();
+		Slot.load();
+
 		world = new World(this);
 		player = new Player(world);
 

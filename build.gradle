@@ -14,19 +14,6 @@ buildscript {
     }
 }
 
-project.ext.texturePacker = [ "textures/", "core/assets/textures/", "tileAtlas" ]
-
-import com.badlogic.gdx.tools.texturepacker.TexturePacker
-
-task texturePacker {
-    doLast {
-        if (project.ext.has('texturePacker')) {
-            logger.info "Calling TexturePacker: "+texturePacker
-            TexturePacker.process(texturePacker[0], texturePacker[1], texturePacker[2])
-        }
-    }
-}
-
 allprojects {
     apply plugin: "eclipse"
 
@@ -54,6 +41,9 @@ allprojects {
 project(":desktop") {
     apply plugin: "java-library"
 
+    configurations {
+        toolsjar
+    }
 
     dependencies {
         implementation project(":core")
@@ -61,12 +51,19 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
-        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        toolsjar "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
         api "de.tomgrill.gdxdialogs:gdx-dialogs-desktop:1.2.5"
-        
+
+        api configurations.toolsjar.dependencies
     }
+
+    task texturePacker(type: Exec) {
+        workingDir "../"
+        commandLine "cmd.exe", "/c", "python", "packTextures.py", "${configurations.toolsjar.asPath}"
+    }
+
 }
 
 project(":core") {

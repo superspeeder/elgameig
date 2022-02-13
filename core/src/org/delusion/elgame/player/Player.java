@@ -29,7 +29,7 @@ public class Player implements SimpleRenderable {
 
     public Player(World world) {
         this.world = world;
-        position = new Vector2(0,32);
+        position = new Vector2(0,64);
         velocity = new Vector2(0,0);
         acceleration = new Vector2(0,0);
         camera = new OrthographicCamera(1920, 1080);
@@ -40,20 +40,41 @@ public class Player implements SimpleRenderable {
         internalSprite.setOrigin(0,0);
     }
 
+    public Player setPosition(Vector2 position) {
+        this.position = position;
+        return this;
+    }
+
+    public Player setVelocity(Vector2 velocity) {
+        this.velocity = velocity;
+        return this;
+    }
+
+    public Player setAcceleration(Vector2 acceleration) {
+        this.acceleration = acceleration;
+        return this;
+    }
+
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public boolean isGrounded() {
+        return grounded;
+    }
+
     @Override
     public void render() {
         internalSprite.setPosition(position.x, position.y);
         internalSprite.draw(world.getEntityBatch());
-
-//        Rectangle bbox = new Rectangle(position.x, position.y, internalSprite.getWidth(), internalSprite.getHeight());
-//        double left = Math.floor(bbox.getX() / (float)World.TILE_SIZE);
-//        double right = Math.ceil((bbox.getX() + bbox.getWidth()) / (float)World.TILE_SIZE);
-//        double top = Math.ceil((bbox.getY() + bbox.getHeight()) / (float)World.TILE_SIZE);
-//        double bottom = Math.floor(bbox.getY() / (float)World.TILE_SIZE);
-//
-//
-//        world.getEntityBatch().draw(box, (float) (left * World.TILE_SIZE), (float) (bottom * World.TILE_SIZE), (float) ((right - left) * World.TILE_SIZE), (float) ((top - bottom) * World.TILE_SIZE));
-//        world.getEntityBatch().draw(boxg, bbox.x, bbox.y, bbox.width, bbox.height);
     }
 
     public Vector2 getPosition() {
