@@ -3,6 +3,7 @@ package org.delusion.elgame.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.menu.DebugUI;
@@ -21,6 +22,9 @@ public class MainGameScreen extends ScreenAdapter {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(new MainGameInput(this));
+        game.getPlayer().setPosition(new Vector2(0, 0));
+        game.getPlayer().setVelocity(new Vector2(0, 0));
+        game.getPlayer().setAcceleration(new Vector2(0, 0));
     }
 
     public ElGame getGame() {

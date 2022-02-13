@@ -22,10 +22,8 @@ public class Chunk implements Disposable {
         position = pos;
         this.world = world;
         bounds = new AABBi(position.x * SIZE, position.x * SIZE + SIZE, position.y * SIZE, position.y * SIZE + SIZE);
-        System.out.println("bounds: " + bounds);
 
         generate();
-        System.out.println("generated " + pos);
     }
 
     private void generate() {

@@ -1,0 +1,4 @@
+[
+  ["tile", "", "tileAtlas"],
+  ["ui/slots", "ui/", "slotAtlas"]
+]
