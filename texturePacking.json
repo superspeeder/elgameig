@@ -1,4 +1,5 @@
 [
   ["tile", "", "tileAtlas"],
-  ["ui/slots", "ui/", "slotAtlas"]
+  ["ui/slots", "ui/", "slotAtlas"],
+  ["item", "item/", "items"]
 ]

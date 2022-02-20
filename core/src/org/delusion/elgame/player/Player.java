@@ -5,11 +5,12 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import org.delusion.elgame.inventory.PlayerInventory;
+import org.delusion.elgame.menu.Hotbar;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.world.World;
@@ -17,6 +18,7 @@ import org.delusion.elgame.world.World;
 public class Player implements SimpleRenderable {
 
     private static final float SPEED = 450;
+    private static final float MAX_VELOCITY = 550;
     private OrthographicCamera camera;
     private Vector2 position, velocity, acceleration;
     private Sprite internalSprite;
@@ -26,8 +28,11 @@ public class Player implements SimpleRenderable {
     private boolean grounded = false;
     private int framesSinceGrounded = 100000;
     private boolean jumpedSinceGrounded = false;
+    private final Hotbar hotbar;
+    private final PlayerInventory inventory;
 
     public Player(World world) {
+        hotbar = new Hotbar(world.getGame().getUIBatch(), this);
         this.world = world;
         position = new Vector2(0,64);
         velocity = new Vector2(0,0);
@@ -38,6 +43,7 @@ public class Player implements SimpleRenderable {
         internalSprite = new Sprite(new Texture(Gdx.files.internal("textures/player.png")));
         internalSprite.setSize(16, 24);
         internalSprite.setOrigin(0,0);
+        inventory = new PlayerInventory(world.getGame().getUIBatch(), this);
     }
 
     public Player setPosition(Vector2 position) {
@@ -95,12 +101,15 @@ public class Player implements SimpleRenderable {
             velocity.x = SPEED;
         }
 
+        velocity.x = Math.min(Math.max(velocity.x, -MAX_VELOCITY), MAX_VELOCITY);
+
         position.x += velocity.x * dt;
         internalSprite.setPosition(position.x,position.y);
 
         checkCollisionsX();
 
         velocity.y -= 1100 * dt;
+        velocity.y = Math.min(Math.max(velocity.y, -MAX_VELOCITY), MAX_VELOCITY);
         position.y += velocity.y * dt;
         internalSprite.setPosition(position.x,position.y);
         checkCollisionsY();
@@ -185,8 +194,6 @@ public class Player implements SimpleRenderable {
         double top = Math.ceil((bbox.getY() + bbox.getHeight()) / World.TILE_SIZE);
         double bottom = Math.floor(bbox.getY() / World.TILE_SIZE);
 
-
-
         Rectangle intersection_blank = new Rectangle();
 
         if (velocity.y > 0) { // moving up
@@ -242,5 +249,13 @@ public class Player implements SimpleRenderable {
                 jumpedSinceGrounded = false;
             }
         }
+    }
+
+    public Hotbar getHotbar() {
+        return hotbar;
+    }
+
+    public PlayerInventory getInventory() {
+        return inventory;
     }
 }

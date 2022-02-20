@@ -118,4 +118,8 @@ public class World implements SimpleRenderable {
     public Batch getEntityBatch() {
         return entityBatch;
     }
+
+    public ElGame getGame() {
+        return game;
+    }
 }
