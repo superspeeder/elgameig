@@ -1,27 +1,27 @@
 
-tileAtlas.png
-size: 64, 64
+items.png
+size: 128, 64
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-tile
+dirt
   rotate: false
-  xy: 2, 20
+  xy: 2, 2
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 1
-tile
+  index: -1
+grass
   rotate: false
-  xy: 2, 2
-  size: 16, 16
-  orig: 16, 16
+  xy: 36, 2
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
-  index: 2
-tile
+  index: -1
+stone
   rotate: false
-  xy: 36, 36
-  size: 16, 16
-  orig: 16, 16
+  xy: 70, 2
+  size: 32, 32
+  orig: 32, 32
   offset: 0, 0
-  index: 3
+  index: -1

@@ -1,0 +1,68 @@
+
+slotAtlas.png
+size: 512, 128
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+hotbarSlotLeft
+  rotate: false
+  xy: 2, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+hotbarSlotMiddle
+  rotate: false
+  xy: 100, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+hotbarSlotRight
+  rotate: false
+  xy: 198, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+slotDefault
+  rotate: false
+  xy: 296, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+
+slotAtlas2.png
+size: 512, 128
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+selected/hotbarSlotLeftSelected
+  rotate: false
+  xy: 2, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+selected/hotbarSlotMiddleSelected
+  rotate: false
+  xy: 100, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+selected/hotbarSlotRightSelected
+  rotate: false
+  xy: 198, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1
+selected/slotSelected
+  rotate: false
+  xy: 296, 2
+  size: 96, 96
+  orig: 96, 96
+  offset: 0, 0
+  index: -1

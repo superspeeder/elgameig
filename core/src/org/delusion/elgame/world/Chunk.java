@@ -31,8 +31,11 @@ public class Chunk implements Disposable {
         for (int x = bounds.left ; x < bounds.right ; x++) {
             int localY = 0;
             int h = 0;
+
             for (int y = bounds.bottom ; y < bounds.top ; y++) {
-                if (y < h) {
+                if (x > 50 && x < 54) {
+                    set(localX, localY, TileType.Air);
+                } else if (y < h) {
                     set(localX, localY, TileType.Dirt);
                 } else if (y == 14) {
                     set(localX, localY, TileType.StoneTile);

@@ -16,7 +16,7 @@ public class DebugUI implements SimpleRenderable {
     private final BitmapFont font;
     private final ElGame game;
 
-    public DebugUI(ElGame game) {
+    public DebugUI(ElGame game, SpriteBatch uibatch) {
         this.game = game;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto/Roboto-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -27,15 +27,13 @@ public class DebugUI implements SimpleRenderable {
         parameter.magFilter = Texture.TextureFilter.Linear;
 
         font = generator.generateFont(parameter);
-        batch = new SpriteBatch();
+        batch = uibatch;
     }
 
     @Override
     public void render() {
-
-        batch.begin();
         font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, Gdx.graphics.getHeight() - 20);
         font.draw(batch, String.format("Position: (%.3f, %.3f)", game.getPlayer().getPosition().x / (float) World.TILE_SIZE, game.getPlayer().getPosition().y / (float) World.TILE_SIZE), 20, Gdx.graphics.getHeight() - 40);
-        batch.end();
+        font.draw(batch, String.format("Velocity: (%.3f, %.3f)", game.getPlayer().getVelocity().x / (float) World.TILE_SIZE, game.getPlayer().getVelocity().y / (float) World.TILE_SIZE), 20, Gdx.graphics.getHeight() - 60);
     }
 }
