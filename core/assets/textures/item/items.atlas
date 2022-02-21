@@ -39,3 +39,10 @@ stone
   orig: 32, 32
   offset: 0, 0
   index: -1
+super-pick
+  rotate: false
+  xy: 20, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1

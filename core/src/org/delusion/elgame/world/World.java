@@ -1,6 +1,7 @@
 package org.delusion.elgame.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -18,6 +19,10 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class World implements SimpleRenderable {
+
+    public enum Layer {
+        Main, BG
+    }
 
     public static final int TILE_SIZE = 16;
     private static final long MAX_CHUNKS = 100;
@@ -126,7 +131,7 @@ public class World implements SimpleRenderable {
         if (nc != null) {
             nc.renderTo(batch);
         }
-
+        batch.setColor(Color.WHITE);
     }
 
     public void linkToPlayer(Player player) {
@@ -160,5 +165,47 @@ public class World implements SimpleRenderable {
             return true;
         }
         return false;
+    }
+
+    public boolean canPlaceAtBg(Vector2i tilePos) {
+        return getTileBg(tilePos).getNow(null) == TileTypes.Air;
+    }
+
+    public CompletableFuture<TileType> getTileBg(Vector2i tilePos) {
+        return getTileBg(tilePos.x, tilePos.y);
+    }
+
+    public CompletableFuture<TileType> getTileBg(int x, int y) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        return chunkCache.get(chunkPos).thenApply(chunk -> chunk.getBg(localPos.x, localPos.y));
+    }
+
+    public void setTileBg(Vector2i tilePos, TileType ttype) {
+        setTileBg(tilePos.x, tilePos.y, Objects.requireNonNullElse(ttype, TileTypes.Air));
+    }
+
+    public void setTileBg(int x, int y, TileType ttype) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        chunkCache.get(chunkPos).thenAccept(chunk -> chunk.setBg(localPos.x, localPos.y, ttype));
     }
 }

@@ -8,6 +8,7 @@ import org.delusion.elgame.item.Item;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.utils.Vector2i;
 import org.delusion.elgame.world.World;
+import org.delusion.elgame.world.World.Layer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,14 +55,21 @@ public class TileType {
         return tilesById.getOrDefault(id, TileTypes.Air);
     }
 
-    public void renderTo(SpriteBatch batch, int x, int y) {
+    public void renderTo(SpriteBatch batch, int x, int y, World world, TileMetadata metadata) {
         if (properties.visible) {
+            batch.setColor(metadata.lightValue, metadata.lightValue, metadata.lightValue, 1.0f);
             batch.draw(mainAtlas.findRegion(textureName, id), x * World.TILE_SIZE, y * World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
         }
     }
 
-    public Stream<Stack> getDrop(Player player, World world, Vector2i tilePos, Stack stack) {
-        return properties.dropFunc.getDrops(player, world, tilePos, stack);
+    public Stream<Stack> getDrop(Player player, World world, Vector2i tilePos, Stack stack, Layer layer) {
+        return properties.dropFunc.getDrops(player, world, tilePos, stack, layer);
     }
 
+    public void renderToBG(SpriteBatch batch, int x, int y, World world, TileMetadata metadata) {
+        if (properties.visible) {
+            batch.setColor(metadata.lightValue * 0.6f, metadata.lightValue * 0.6f, metadata.lightValue * 0.6f, 1.0f);
+            batch.draw(mainAtlas.findRegion(textureName, id), x * World.TILE_SIZE, y * World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
+        }
+    }
 }
