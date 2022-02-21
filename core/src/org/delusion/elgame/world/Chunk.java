@@ -17,10 +17,12 @@ public class Chunk implements Disposable {
     private AABBi bounds;
     private World world;
     private TileType[][] map;
+    private TileType[][] backgroundTilemap;
     private TileMetadata[][] metadataMap;
 
     public Chunk(World world, Vector2i pos) {
         map = new TileType[SIZE][SIZE];
+        backgroundTilemap = new TileType[SIZE][SIZE];
         metadataMap = new TileMetadata[SIZE][SIZE];
 
         position = pos;
@@ -37,6 +39,19 @@ public class Chunk implements Disposable {
             int h = 0;
 
             for (int y = bounds.bottom ; y < bounds.top ; y++) {
+                metadataMap[localX][localY] = new TileMetadata();
+                metadataMap[localX][localY].lightValue = 1.0f;
+
+                if (y < h - 20) {
+                    setBg(localX, localY, TileTypes.Stone);
+                } else if (y < h - 1) {
+                    setBg(localX, localY, TileTypes.Dirt);
+                } else if (y < h) {
+                    setBg(localX, localY, TileTypes.Grass);
+                } else {
+                    setBg(localX, localY, TileTypes.Air);
+                }
+
                 if (x > 50 && x < 54) {
                     set(localX, localY, TileTypes.Air);
                 } else if (y < h - 20) {
@@ -58,6 +73,14 @@ public class Chunk implements Disposable {
         }
 
 
+    }
+
+    public void setBg(int localX, int localY, TileType type) {
+        backgroundTilemap[localX][localY] = type;
+    }
+
+    public TileType getBg(int localX, int localY) {
+        return backgroundTilemap[localX][localY];
     }
 
     public void set(int localX, int localY, TileType ttype) {
@@ -82,8 +105,19 @@ public class Chunk implements Disposable {
     public void renderTo(SpriteBatch batch) {
         for (int x = 0 ; x < SIZE ; x++) {
             for (int y = 0 ; y < SIZE ; y++) {
-                get(x,y).renderTo(batch, x + position.x * SIZE, y + position.y * SIZE);
+                getBg(x,y).renderToBG(batch, x + position.x * SIZE, y + position.y * SIZE, world, getMetadata(x, y));
             }
         }
+        for (int x = 0 ; x < SIZE ; x++) {
+            for (int y = 0 ; y < SIZE ; y++) {
+                get(x,y).renderTo(batch, x + position.x * SIZE, y + position.y * SIZE, world, getMetadata(x, y));
+            }
+        }
+    }
+
+
+
+    private TileMetadata getMetadata(int x, int y) {
+        return metadataMap[x][y];
     }
 }

@@ -66,11 +66,16 @@ public class Item {
         return Collections.unmodifiableSet(properties.toolTypes);
     }
 
+    public float toolStrength() {
+        return properties.toolStrength;
+    }
+
     public static class Properties {
-        public Set<ToolType> toolTypes;
+        private Set<ToolType> toolTypes;
         private int maxStackSize;
         private ItemUsageAction primary, secondary;
         private ItemUsageAction primaryDragged, secondaryDragged;
+        private float toolStrength;
 
         public Properties maxStackSize(int maxStackSize) {
             this.maxStackSize = maxStackSize;
@@ -101,6 +106,11 @@ public class Item {
             toolTypes = Set.of(types);
             return this;
         }
+
+        public Properties toolStrength(float strength) {
+            toolStrength = strength;
+            return this;
+        }
     }
 
     public static class Builder {
@@ -121,8 +131,8 @@ public class Item {
         }
 
         public Builder placeResult(TileType ttype) {
-            System.out.println(ttype.getVisibleName());
-            properties.primaryDragged(ItemUsageAction.placeTile(ttype)).primary(ItemUsageAction.placeTile(ttype));
+            primaryDragged(ItemUsageAction.placeTile(ttype)).primary(ItemUsageAction.placeTile(ttype));
+            secondaryDragged(ItemUsageAction.placeTileBg(ttype)).secondary(ItemUsageAction.placeTileBg(ttype));
             return this;
         }
 
@@ -148,6 +158,18 @@ public class Item {
 
         public Builder toolTypes(ToolType... types) {
             properties.toolTypes(types);
+            return this;
+        }
+
+		public Builder miningTool(float strength) {
+            toolStrength(strength);
+            primary(ItemUsageAction.mineTile).primaryDragged(ItemUsageAction.mineTile);
+            secondary(ItemUsageAction.mineTileBg).secondaryDragged(ItemUsageAction.mineTileBg);
+			return this;
+		}
+
+        public Builder toolStrength(float strength) {
+            properties.toolStrength(strength);
             return this;
         }
     }

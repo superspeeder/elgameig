@@ -13,12 +13,14 @@ public class TileProperties {
     public final boolean visible;
     public final TileDropsFunction dropFunc;
     public final Set<ToolType> breakingTools;
+    public final float hardness;
 
-    public TileProperties(boolean solid, boolean visible, TileDropsFunction dropFunc, Set<ToolType> breakingTools) {
+    public TileProperties(boolean solid, boolean visible, TileDropsFunction dropFunc, Set<ToolType> breakingTools, float hardness) {
         this.solid = solid;
         this.visible = visible;
         this.dropFunc = dropFunc;
         this.breakingTools = Collections.unmodifiableSet(breakingTools);
+        this.hardness = hardness;
     }
 
     static Builder builder() {
@@ -31,6 +33,7 @@ public class TileProperties {
         private boolean visible = true;
         private TileDropsFunction dropFunc = TileDropsFunction.none;
         private Set<ToolType> breakingTools = Set.of();
+        private float hardness = 0.0f;
 
         private Builder() {
         }
@@ -55,10 +58,6 @@ public class TileProperties {
             return this;
         }
 
-        public TileProperties build() {
-            return new TileProperties(solid, visible, dropFunc, breakingTools);
-        }
-
         public Builder drops(TileDropsFunction f) {
             dropFunc = f;
             return this;
@@ -68,5 +67,15 @@ public class TileProperties {
             breakingTools = Set.of(types);
             return this;
         }
+
+        public Builder hardness(float hardness) {
+            this.hardness = hardness;
+            return this;
+        }
+        
+        public TileProperties build() {
+            return new TileProperties(solid, visible, dropFunc, breakingTools, hardness);
+        }
+
     }
 }

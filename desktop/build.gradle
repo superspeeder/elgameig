@@ -6,6 +6,7 @@ project.ext.mainClassName = "org.delusion.elgame.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
 
 task run(dependsOn: classes, type: JavaExec) {
+    dependsOn ':desktop:texturePacker'
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
@@ -14,6 +15,7 @@ task run(dependsOn: classes, type: JavaExec) {
 }
 
 task debug(dependsOn: classes, type: JavaExec) {
+    dependsOn ':desktop:texturePacker'
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
@@ -23,6 +25,7 @@ task debug(dependsOn: classes, type: JavaExec) {
 }
 
 task dist(type: Jar) {
+    dependsOn ':desktop:texturePacker'
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
@@ -34,6 +37,6 @@ task dist(type: Jar) {
 }
 
 
-dist.dependsOn classes
+dist.dependsOn classes 
 
 eclipse.project.name = appName + "-desktop"
