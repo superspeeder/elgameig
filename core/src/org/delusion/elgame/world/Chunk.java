@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.delusion.elgame.tile.TileMetadata;
 import org.delusion.elgame.tile.TileType;
+import org.delusion.elgame.tile.TileTypes;
 import org.delusion.elgame.utils.AABBi;
 import org.delusion.elgame.utils.Vector2i;
 
@@ -15,9 +17,11 @@ public class Chunk implements Disposable {
     private AABBi bounds;
     private World world;
     private TileType[][] map;
+    private TileMetadata[][] metadataMap;
 
     public Chunk(World world, Vector2i pos) {
         map = new TileType[SIZE][SIZE];
+        metadataMap = new TileMetadata[SIZE][SIZE];
 
         position = pos;
         this.world = world;
@@ -34,15 +38,19 @@ public class Chunk implements Disposable {
 
             for (int y = bounds.bottom ; y < bounds.top ; y++) {
                 if (x > 50 && x < 54) {
-                    set(localX, localY, TileType.Air);
+                    set(localX, localY, TileTypes.Air);
+                } else if (y < h - 20) {
+                    set(localX, localY, TileTypes.Stone);
+                } else if (y < h - 1) {
+                    set(localX, localY, TileTypes.Dirt);
                 } else if (y < h) {
-                    set(localX, localY, TileType.Dirt);
+                    set(localX, localY, TileTypes.Grass);
                 } else if (y == 14) {
-                    set(localX, localY, TileType.StoneTile);
+                    set(localX, localY, TileTypes.StoneTile);
                 } else if (y == 15 && x % 5 == 0) {
-                    set(localX, localY, TileType.StoneTile);
+                    set(localX, localY, TileTypes.StoneTile);
                 } else {
-                    set(localX, localY, TileType.Air);
+                    set(localX, localY, TileTypes.Air);
                 }
                 localY++;
             }

@@ -1,11 +1,10 @@
 package org.delusion.elgame.inventory;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import org.delusion.elgame.item.Items;
 import org.delusion.elgame.menu.Slot;
 import org.delusion.elgame.player.Player;
-import org.delusion.elgame.screens.InventoryScreen;
 import org.delusion.elgame.utils.SimpleRenderable;
 
 public class PlayerInventory implements IInventory, SimpleRenderable {
@@ -35,9 +34,9 @@ public class PlayerInventory implements IInventory, SimpleRenderable {
             }
         }
 
-        slots[13].setStack(new Stack(Item.Stone, 123));
-        slots[16].setStack(new Stack(Item.Dirt, 200));
-        slots[15].setStack(new Stack(Item.Dirt, 123));
+        slots[13].setStack(new Stack(Items.Stone, 123));
+        slots[16].setStack(new Stack(Items.Dirt, 200));
+        slots[15].setStack(new Stack(Items.Dirt, 123));
     }
 
 

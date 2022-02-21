@@ -7,18 +7,20 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import org.delusion.elgame.item.Item;
 
 public class Stack {
 
     private Item item;
     private int count;
     private static BitmapFont font;
+    private static BitmapFont fontSmaller;
 
     public static void load() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto/Roboto-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
+        parameter.color = Color.DARK_GRAY;
+        parameter.borderColor = Color.LIGHT_GRAY;
         parameter.borderWidth = 1.0f;
         parameter.mono = true;
         parameter.size = 24;
@@ -26,6 +28,16 @@ public class Stack {
         parameter.magFilter = Texture.TextureFilter.Linear;
 
         font = generator.generateFont(parameter);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter2.color = Color.DARK_GRAY;
+        parameter2.borderColor = Color.LIGHT_GRAY;
+        parameter2.borderWidth = 1.0f;
+        parameter2.mono = true;
+        parameter2.size = 18;
+        parameter2.minFilter = Texture.TextureFilter.Linear;
+        parameter2.magFilter = Texture.TextureFilter.Linear;
+        fontSmaller = generator.generateFont(parameter2);
     }
 
     public Stack() {
@@ -73,19 +85,19 @@ public class Stack {
         return new Stack(this);
     }
 
-    public Stack tryCombine(Stack other) {
+    public Stack merge(Stack other) {
         if (item == null || count == 0) {
             set(other);
             return new Stack();
         }
-        if (other.count == 0 || other.item == null || other.item != item || count == item.maxStackSize) {
+        if (other.count == 0 || other.item == null || other.item != item || count == item.maxStackSize()) {
             return other;
         }
 
-        if (other.count + count > item.maxStackSize) {
+        if (other.count + count > item.maxStackSize()) {
             int cc = count;
-            count = item.maxStackSize;
-            return new Stack(other.item, other.count + cc - item.maxStackSize);
+            count = item.maxStackSize();
+            return new Stack(other.item, other.count + cc - item.maxStackSize());
         }
 
         count += other.count;
@@ -100,5 +112,42 @@ public class Stack {
                 font.draw(batch, gl, x + 72 - gl.width, y + 16);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s x %d", item.name, count);
+    }
+
+    public void add(int i) {
+        count += i;
+        if (count < 0) count = 0;
+        if (count > item.maxStackSize()) count = item.maxStackSize();
+    }
+
+    public boolean isEmpty() {
+        return item == null || count <= 0;
+    }
+
+    public boolean isFull() {
+        return item != null && item.maxStackSize() == count;
+    }
+
+    public void renderAtCursor(SpriteBatch batch) {
+        if (count > 0 && item != null) {
+            batch.draw(item.getTex(), Gdx.input.getX() + 16, Gdx.graphics.getHeight() - Gdx.input.getY() - 48, 32, 32);
+            if (count > 1) {
+                GlyphLayout gl = new GlyphLayout(fontSmaller, Integer.toString(count));
+                fontSmaller.draw(batch, gl, Gdx.input.getX() + 56 - gl.width, Gdx.graphics.getHeight() - Gdx.input.getY() - 40);
+            }
+        }
+
+//        if (count > 0 && item != null) {
+//            batch.draw(item.getTex(), Gdx.input.getX() + 16, Gdx.graphics.getHeight() - Gdx.input.getY() - 48, 32, 32);
+//            if (count > 1) {
+//                GlyphLayout gl = new GlyphLayout(fontSmaller, Integer.toString(count));
+//                fontSmaller.draw(batch, gl, Gdx.input.getX() + 72 - gl.width, Gdx.graphics.getHeight() - Gdx.input.getY() + 16);
+//            }
+//        }
     }
 }

@@ -6,13 +6,20 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import org.delusion.elgame.inventory.PlayerInventory;
+import org.delusion.elgame.inventory.Stack;
+import org.delusion.elgame.item.ItemUsageAction;
 import org.delusion.elgame.menu.Hotbar;
+import org.delusion.elgame.menu.Slot;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.utils.SimpleRenderable;
+import org.delusion.elgame.utils.Vector2i;
 import org.delusion.elgame.world.World;
 
 public class Player implements SimpleRenderable {
@@ -23,13 +30,15 @@ public class Player implements SimpleRenderable {
     private Vector2 position, velocity, acceleration;
     private Sprite internalSprite;
     private World world;
-    private Texture box = new Texture(Gdx.files.internal("textures/selection_box.png"));
-    private Texture boxg = new Texture(Gdx.files.internal("textures/selection_boxg.png"));
     private boolean grounded = false;
     private int framesSinceGrounded = 100000;
     private boolean jumpedSinceGrounded = false;
     private final Hotbar hotbar;
     private final PlayerInventory inventory;
+    private Texture box = new Texture(Gdx.files.internal("textures/selection_box.png"));
+    private Texture boxg = new Texture(Gdx.files.internal("textures/selection_boxg.png"));
+    private float zoom = 0.7f;
+    private Rectangle intersection_blank = new Rectangle();
 
     public Player(World world) {
         hotbar = new Hotbar(world.getGame().getUIBatch(), this);
@@ -92,6 +101,16 @@ public class Player implements SimpleRenderable {
     }
 
     public void update(float dt) {
+        if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD)) {
+            zoomIn();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_SUBTRACT)) {
+            zoomOut();
+        }
+
+
+        camera.zoom = zoom;
+
         grounded = false;
         velocity.x = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
@@ -121,7 +140,7 @@ public class Player implements SimpleRenderable {
             jumpedSinceGrounded = true;
         }
 
-        camera.position.set(position, camera.position.z);
+        camera.position.set(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f, camera.position.z);
         camera.update();
     }
 
@@ -131,9 +150,6 @@ public class Player implements SimpleRenderable {
         double right = Math.ceil((bbox.getX() + bbox.getWidth()) / World.TILE_SIZE);
         double top = Math.ceil((bbox.getY() + bbox.getHeight()) / World.TILE_SIZE);
         double bottom = Math.floor(bbox.getY() / World.TILE_SIZE);
-
-
-        Rectangle intersection_blank = new Rectangle();
 
         if (velocity.x > 0) { // moving right
             float nearest = bbox.getX() + bbox.getWidth();
@@ -194,8 +210,6 @@ public class Player implements SimpleRenderable {
         double top = Math.ceil((bbox.getY() + bbox.getHeight()) / World.TILE_SIZE);
         double bottom = Math.floor(bbox.getY() / World.TILE_SIZE);
 
-        Rectangle intersection_blank = new Rectangle();
-
         if (velocity.y > 0) { // moving up
             float nearest = bbox.getY() + bbox.getHeight();
             boolean collided = false;
@@ -218,7 +232,8 @@ public class Player implements SimpleRenderable {
 
             if (collided) {
                 position.y = nearest - bbox.getHeight();
-                velocity.y = -velocity.y * 0.667f;
+//                velocity.y = -velocity.y * 0.667f;
+                velocity.y = 0.0f;
             }
 
         } else if (velocity.y < 0) { // moving down
@@ -257,5 +272,81 @@ public class Player implements SimpleRenderable {
 
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public Vector2i tileFromScreenPos(int x, int y) {
+        Vector3 upp = camera.unproject(new Vector3(x, y, 0.0f));
+        return World.toTilePos(new Vector2(upp.x, upp.y));
+    }
+
+    public void drawUIElements(SpriteBatch uibatch) {
+        hotbar.getSelected().getStack().renderAtCursor(uibatch);
+    }
+
+    public void drawUIShapesLine(ShapeRenderer uisr) {
+        Vector3 sc_p = camera.project(new Vector3(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f, 0.0f));
+
+        uisr.circle(sc_p.x, sc_p.y, World.TILE_SIZE * ItemUsageAction.REACH_MAX / zoom);
+
+
+    }
+
+    public Texture getSelectionBox() {
+        return box;
+    }
+
+    public float getZoom() {
+        return zoom;
+    }
+
+    public Player setZoom(float zoom) {
+        this.zoom = zoom;
+        return this;
+    }
+
+    public void zoomIn() {
+        zoom -= 0.01;
+        if (zoom <= 0.1) zoom = 0.1f;
+    }
+
+    public void zoomOut() {
+        zoom += 0.01;
+        if (zoom >= 2.0) zoom = 2.0f;
+    }
+
+    public void normalInteractWith(Vector2i tp, boolean justStarted) {
+        Slot slot = hotbar.getSelected();
+        Stack stack = slot.getStack();
+        if (stack.getItem() != null) {
+            if (stack.getItem().primary() != null) {
+                stack.getItem().primary().onUse(this, world, tp, stack, justStarted);
+            }
+        }
+    }
+
+    public void secondaryInteractWith(Vector2i tp, boolean justStarted) {
+        Slot slot = hotbar.getSelected();
+        Stack stack = slot.getStack();
+        if (stack.getItem() != null) {
+            if (stack.getItem().secondary() != null) {
+                stack.getItem().secondary().onUse(this, world, tp, stack, justStarted);
+            }
+        }
+    }
+
+    public boolean collidesWithTile(Vector2i tilePos) {
+        Rectangle trect = new Rectangle(tilePos.x * World.TILE_SIZE, tilePos.y * World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
+        return Intersector.intersectRectangles(internalSprite.getBoundingRectangle(), trect, intersection_blank);
+    }
+
+    public Stack tryInsertStack(Stack stack) {
+        stack = hotbar.tryMergeExisting(stack);
+        stack = inventory.tryMergeExisting(stack);
+        stack = hotbar.tryInsert(stack);
+        return inventory.tryInsert(stack);
+    }
+
+    public float distanceToTileCenter(Vector2i tilePos) {
+        return new Vector2(tilePos.x * World.TILE_SIZE + (World.TILE_SIZE / 2.f), tilePos.y * World.TILE_SIZE + (World.TILE_SIZE / 2.f)).sub(new Vector2(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f)).len() / (float)World.TILE_SIZE;
     }
 }

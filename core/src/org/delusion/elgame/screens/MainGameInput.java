@@ -1,5 +1,6 @@
 package org.delusion.elgame.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector2;
@@ -79,15 +80,37 @@ public class MainGameInput extends InputAdapter {
         if (mainGameScreen.getHotbar().onClick(screenX,screenY,button)) {
             return true;
         }
-        return super.touchDown(screenX, screenY, pointer, button);
+
+
+        return mainGameScreen.onWorldClicked(screenX, screenY, button) ||  super.touchDown(screenX, screenY, pointer, button);
     }
 
     @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        mainGameScreen.onStopClicking(screenX, screenY, button);
+        return super.touchUp(screenX, screenY, pointer, button);
+    }
+    //    @Override
+//    public boolean touchDragged(int screenX, int screenY, int pointer) {
+//        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+//            mainGameScreen.onWorldLeftClickDrag(screenX, screenY);
+//            return true;
+//        } else if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+//            mainGameScreen.onWorldRightClickDrag(screenX, screenY);
+//            return true;
+//        }
+//
+//        return super.touchDragged(screenX, screenY, pointer);
+//    }
+
+
+
+    @Override
     public boolean scrolled(float amountX, float amountY) {
-        if (amountY == -1) {
+        if (amountY == 1) {
             mainGameScreen.getHotbar().scrollRight();
             return true;
-        } else if (amountY == 1) {
+        } else if (amountY == -1) {
             mainGameScreen.getHotbar().scrollLeft();
             return true;
         }

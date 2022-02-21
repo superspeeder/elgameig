@@ -59,13 +59,13 @@ public class Slot {
                 }
             }
 
-            if (hand.getItem() != stack.getItem() || stack.getCount() == stack.getItem().maxStackSize) {
+            if (hand.getItem() != stack.getItem() || stack.getCount() == stack.getItem().maxStackSize()) {
                 game.getInventoryScreen().setStackInHand(stack);
                 stack = hand;
                 return;
             }
 
-            game.getInventoryScreen().setStackInHand(stack.tryCombine(hand));
+            game.getInventoryScreen().setStackInHand(stack.merge(hand));
 
         } else if (button == Input.Buttons.RIGHT) {
             Stack hand = game.getInventoryScreen().getStackInHand();
@@ -86,7 +86,7 @@ public class Slot {
                 return;
             }
 
-            if (hand.getItem() != stack.getItem() || stack.getCount() == stack.getItem().maxStackSize) {
+            if (hand.getItem() != stack.getItem() || stack.getCount() == stack.getItem().maxStackSize()) {
                 return;
             }
 
@@ -94,5 +94,26 @@ public class Slot {
             game.getInventoryScreen().setStackInHand(hand.copy().setCount(hand.getCount() - 1));
 
         }
+    }
+
+    public Stack getStack() {
+        return stack;
+    }
+
+    public boolean isEmpty() {
+        return stack.isEmpty();
+    }
+
+    public Stack tryMerge(Stack other) {
+//        if (stack.isEmpty()) {
+//            setStack(other);
+//            return new Stack();
+//        }
+//        if (stack.getItem() == other.getItem()) {
+//            if (!stack.isFull()) {
+//
+//            }
+//        }
+        return stack.merge(other);
     }
 }

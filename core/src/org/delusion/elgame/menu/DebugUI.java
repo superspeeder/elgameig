@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.utils.SimpleRenderable;
+import org.delusion.elgame.utils.Vector2i;
 import org.delusion.elgame.world.World;
 
 public class DebugUI implements SimpleRenderable {
@@ -35,5 +36,8 @@ public class DebugUI implements SimpleRenderable {
         font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 20, Gdx.graphics.getHeight() - 20);
         font.draw(batch, String.format("Position: (%.3f, %.3f)", game.getPlayer().getPosition().x / (float) World.TILE_SIZE, game.getPlayer().getPosition().y / (float) World.TILE_SIZE), 20, Gdx.graphics.getHeight() - 40);
         font.draw(batch, String.format("Velocity: (%.3f, %.3f)", game.getPlayer().getVelocity().x / (float) World.TILE_SIZE, game.getPlayer().getVelocity().y / (float) World.TILE_SIZE), 20, Gdx.graphics.getHeight() - 60);
+        Vector2i tp = game.getPlayer().tileFromScreenPos(Gdx.input.getX(), Gdx.input.getY());
+        font.draw(batch, String.format("Hovered Tile: (%d, %d)", tp.x, tp.y), 20, Gdx.graphics.getHeight() - 80);
+        font.draw(batch, String.format("Zoom: %f", game.getPlayer().getZoom()), 20, Gdx.graphics.getHeight() - 100);
     }
 }
