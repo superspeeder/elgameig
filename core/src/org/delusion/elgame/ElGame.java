@@ -1,7 +1,11 @@
 package org.delusion.elgame;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import org.delusion.elgame.item.Item;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.menu.Slot;
@@ -26,6 +30,8 @@ public class ElGame extends Game {
 	private InventoryScreen inventoryScreen;
 	private SpriteBatch uibatch;
 
+	private FrameBuffer screenFramebuffer;
+	private SpriteBatch screenBatch;
 
 	@Override
 	public void create () {
@@ -36,6 +42,9 @@ public class ElGame extends Game {
 
 		uibatch = new SpriteBatch();
 
+		screenFramebuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		screenFramebuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+		screenBatch = new SpriteBatch();
 
 		world = new World(this);
 		player = new Player(world);
@@ -45,6 +54,17 @@ public class ElGame extends Game {
 		inventoryScreen = new InventoryScreen(this);
 
 		setScreen(mainMenuScreen);
+	}
+
+	@Override
+	public void render() {
+		screenFramebuffer.begin();
+		super.render();
+		screenFramebuffer.end();
+
+		screenBatch.begin();
+		screenBatch.draw(screenFramebuffer.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0, 0, 1, 1);
+		screenBatch.end();
 	}
 
 	@Override

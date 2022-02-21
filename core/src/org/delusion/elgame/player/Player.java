@@ -305,12 +305,12 @@ public class Player implements SimpleRenderable {
     }
 
     public void zoomIn() {
-        zoom -= 0.01;
+        zoom -= Gdx.graphics.getDeltaTime();
         if (zoom <= 0.1) zoom = 0.1f;
     }
 
     public void zoomOut() {
-        zoom += 0.01;
+        zoom += Gdx.graphics.getDeltaTime();
         if (zoom >= 2.0) zoom = 2.0f;
     }
 

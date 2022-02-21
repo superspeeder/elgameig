@@ -77,8 +77,6 @@ public class Chunk implements Disposable {
         if (chunk != null) {
             chunk.dispose();
         }
-
-
     }
 
     public void renderTo(SpriteBatch batch) {
