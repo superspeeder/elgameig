@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.delusion.elgame.inventory.IInventory;
-import org.delusion.elgame.inventory.Item;
+import org.delusion.elgame.item.Items;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.utils.SimpleRenderable;
@@ -43,7 +43,9 @@ public class Hotbar implements IInventory, SimpleRenderable {
 
         select(0);
 
-        slots[2].setStack(new Stack(Item.Grass, 200));
+        slots[2].setStack(new Stack(Items.Grass, 200));
+        slots[0].setStack(new Stack(Items.Pickaxe, 1));
+        slots[1].setStack(new Stack(Items.Spade, 1));
     }
 
     @Override
@@ -118,5 +120,9 @@ public class Hotbar implements IInventory, SimpleRenderable {
             return true;
         }
         return false;
+    }
+
+    public Slot getSelected() {
+        return curselected;
     }
 }

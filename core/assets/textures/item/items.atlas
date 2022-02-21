@@ -6,21 +6,35 @@ filter: Nearest, Nearest
 repeat: none
 dirt
   rotate: false
-  xy: 2, 2
+  xy: 2, 20
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 36, 2
+  xy: 36, 20
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
+pick
+  rotate: false
+  xy: 2, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+spade
+  rotate: false
+  xy: 104, 36
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 stone
   rotate: false
-  xy: 70, 2
+  xy: 70, 20
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

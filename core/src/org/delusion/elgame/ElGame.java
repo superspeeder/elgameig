@@ -1,9 +1,8 @@
 package org.delusion.elgame;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import org.delusion.elgame.inventory.Item;
+import org.delusion.elgame.item.Item;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.menu.Slot;
 import org.delusion.elgame.player.Player;
