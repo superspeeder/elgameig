@@ -31,4 +31,7 @@ public class Items {
 
     public static final Item Torch = Item.Builder
         .create("torch", 99).placeResultForeground(TileTypes.Torch).build();
+
+    public static final Item SuperbrightTorch = Item.Builder
+            .create("superbright-torch", 99).placeResultForeground(TileTypes.SuperbrightTorch).build();
 }

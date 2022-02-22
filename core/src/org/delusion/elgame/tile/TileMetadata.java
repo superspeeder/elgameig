@@ -8,4 +8,7 @@ public class TileMetadata {
 
     @Ephemeral
     public float tileDamage;
+
+    @Ephemeral
+    public byte border;
 }

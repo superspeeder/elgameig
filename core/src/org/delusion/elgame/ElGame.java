@@ -32,6 +32,7 @@ public class ElGame extends Game {
 
 	private FrameBuffer screenFramebuffer;
 	private SpriteBatch screenBatch;
+	private Settings settings = new Settings();
 
 	@Override
 	public void create () {
@@ -94,5 +95,9 @@ public class ElGame extends Game {
 
 	public InventoryScreen getInventoryScreen() {
 		return inventoryScreen;
+	}
+
+	public Settings getSettings() {
+		return settings;
 	}
 }
