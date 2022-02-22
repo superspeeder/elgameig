@@ -28,4 +28,7 @@ public class Items {
     public static final Item Spade = Item.Builder
         .create("spade", 1).miningTool(1.0f)
         .toolTypes(ToolType.Shovel).build();
+
+    public static final Item Torch = Item.Builder
+        .create("torch", 99).placeResultForeground(TileTypes.Torch).build();
 }

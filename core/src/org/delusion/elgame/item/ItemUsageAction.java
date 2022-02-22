@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 @FunctionalInterface
 public interface ItemUsageAction {
     float REACH_MAX = 8;
+    ItemUsageAction none = (player, world, tilePos, stack, firstUse) -> {};
 
     static ItemUsageAction placeTile(TileType ttype) {
         return (player, world, tilePos, stack, firstUse) -> {

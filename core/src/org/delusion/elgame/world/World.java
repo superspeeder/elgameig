@@ -233,6 +233,10 @@ public class World implements SimpleRenderable {
             return 1.f;
         }
 
+        if (fgtt.getProperties().emmission > 0.f) {
+            return fgtt.getProperties().emmission;
+        }
+
         return 0.f;
     }
 

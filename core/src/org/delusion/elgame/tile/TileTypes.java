@@ -34,4 +34,9 @@ public class TileTypes {
                 }
             }).breakingTools(ToolType.Shovel, ToolType.Pickaxe).build(), "tile");
 
+    public static final TileType Torch = new TileType(5, "Torch", TileProperties.builder()
+            .breakingTools(ToolType.Pickaxe, ToolType.Shovel)
+            .drops(TileDropsFunction.supplier(() -> new Stack(Items.Torch)))
+            .emmission(0.8f).intangible().build(), "tile");
+
 }

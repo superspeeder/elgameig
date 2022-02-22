@@ -73,8 +73,8 @@ public class Item {
     public static class Properties {
         private Set<ToolType> toolTypes;
         private int maxStackSize;
-        private ItemUsageAction primary, secondary;
-        private ItemUsageAction primaryDragged, secondaryDragged;
+        private ItemUsageAction primary = ItemUsageAction.none, secondary = ItemUsageAction.none;
+        private ItemUsageAction primaryDragged = ItemUsageAction.none, secondaryDragged = ItemUsageAction.none;
         private float toolStrength;
 
         public Properties maxStackSize(int maxStackSize) {
@@ -170,6 +170,16 @@ public class Item {
 
         public Builder toolStrength(float strength) {
             properties.toolStrength(strength);
+            return this;
+        }
+
+        public Builder placeResultForeground(TileType ttype) {
+            primaryDragged(ItemUsageAction.placeTile(ttype)).primary(ItemUsageAction.placeTile(ttype));
+            return this;
+        }
+
+        public Builder placeResultBackground(TileType ttype) {
+            secondaryDragged(ItemUsageAction.placeTile(ttype)).secondary(ItemUsageAction.placeTile(ttype));
             return this;
         }
     }

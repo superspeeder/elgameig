@@ -48,7 +48,7 @@ public class Chunk implements Disposable {
 
             for (int y = bounds.bottom ; y < bounds.top ; y++) {
                 metadataMap[localX][localY] = new TileMetadata();
-                metadataMap[localX][localY].lightValue = 1.0f;
+                metadataMap[localX][localY].lightValue = 0.0f;
 
                 if (y < h - 20) {
                     setBg(localX, localY, TileTypes.Stone);
@@ -126,24 +126,36 @@ public class Chunk implements Disposable {
     }
 
     public void recalculateLighting() {
-        recalculateLightingInternal(true);
+        recalculateLightingInternal(true, false);
     }
 
     public void recalculateLightingNC() {
-        recalculateLightingInternal(false);
+        if (lightingMappedFirstTime) {
+            recalculateLightingInternal(false, true);
+        }
     }
 
-    public void recalculateLightingInternal(boolean cbk) {
+    public void recalculateLightingInternal(boolean cbk, boolean trytokeep) {
         Queue<Vector2i> pendingWorldPositions = new LinkedList<>();
 
         for (int x = 0 ; x < SIZE ; x++) {
             for (int y = 0 ; y < SIZE ; y++) {
-                float el = world.getEmmittedLight(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
-                if (el > 0.0f) {
-                    metadataMap[x][y].lightValue = el;
-                    pendingWorldPositions.add(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                if (!trytokeep) {
+                    float el = world.getEmmittedLight(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                    if (el > 0.0f) {
+                        metadataMap[x][y].lightValue = el;
+                        pendingWorldPositions.add(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                    } else {
+                        metadataMap[x][y].lightValue = 0.0f;
+                    }
                 } else {
-                    metadataMap[x][y].lightValue = 0.0f;
+                    float el = world.getEmmittedLight(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                    if (el > 0.0f) {
+                        metadataMap[x][y].lightValue = el;
+                        pendingWorldPositions.add(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                    } else if (metadataMap[x][y].lightValue > 0.0f) {
+                        pendingWorldPositions.add(new Vector2i(x + position.x * SIZE, y + position.y * SIZE));
+                    }
                 }
             }
         }
@@ -159,9 +171,6 @@ public class Chunk implements Disposable {
             world.recalculateLightNCIfAvailable(position.x - 1, position.y + 1);
             world.recalculateLightNCIfAvailable(position.x + 1, position.y + 1);
         }
-
-
-        System.out.println(pendingWorldPositions.size() + " " + SIZE * SIZE + " " + position);
 
         int iters = 0;
         while (!pendingWorldPositions.isEmpty()) {
@@ -278,8 +287,6 @@ public class Chunk implements Disposable {
             }
             iters++;
         }
-
-        System.out.println(iters);
 
         lightingMappedFirstTime = true;
     }
