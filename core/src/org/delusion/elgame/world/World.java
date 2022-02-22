@@ -229,7 +229,7 @@ public class World implements SimpleRenderable {
             return -1.0f;
         }
 
-        if (bgtt == TileTypes.Air && fgtt == TileTypes.Air && tilePos.y >= -5) { // sky behind
+        if (bgtt == TileTypes.Air && !fgtt.getProperties().solid && tilePos.y >= -5) { // sky behind
             return 1.f;
         }
 

@@ -180,13 +180,13 @@ public class Chunk implements Disposable {
             if(tt == null) {
                 continue;
             }
-            boolean csolid = tt != TileTypes.Air;
+            boolean csolid = tt.getProperties().solid;
 
             {
                 Vector2i npos = new Vector2i(curPos.x - 1, curPos.y);
                 TileType tt2 = world.getTileIfAvailable(npos);
                 if (tt2 != null) {
-                    boolean solid = tt2 != TileTypes.Air;
+                    boolean solid = tt2.getProperties().solid;
                     TileMetadata tm2 = world.getMetadataIfAvailable(npos);
                     if (!solid) {
                         float nll = Math.max(0.0f,tm.lightValue - LIGHT_AIRSTEP);
@@ -212,7 +212,7 @@ public class Chunk implements Disposable {
                 Vector2i npos = new Vector2i(curPos.x + 1, curPos.y);
                 TileType tt2 = world.getTileIfAvailable(npos);
                 if (tt2 != null) {
-                    boolean solid = tt2 != TileTypes.Air;
+                    boolean solid = tt2.getProperties().solid;
                     TileMetadata tm2 = world.getMetadataIfAvailable(npos);
                     if (!solid) {
                         float nll = Math.max(0.0f,tm.lightValue - LIGHT_AIRSTEP);
@@ -238,7 +238,7 @@ public class Chunk implements Disposable {
                 Vector2i npos = new Vector2i(curPos.x, curPos.y - 1);
                 TileType tt2 = world.getTileIfAvailable(npos);
                 if (tt2 != null) {
-                    boolean solid = tt2 != TileTypes.Air;
+                    boolean solid = tt2.getProperties().solid;
                     TileMetadata tm2 = world.getMetadataIfAvailable(npos);
                     if (!solid) {
                         float nll = Math.max(0.0f,tm.lightValue - LIGHT_AIRSTEP);
@@ -264,7 +264,7 @@ public class Chunk implements Disposable {
                 Vector2i npos = new Vector2i(curPos.x, curPos.y + 1);
                 TileType tt2 = world.getTileIfAvailable(npos);
                 if (tt2 != null) {
-                    boolean solid = tt2 != TileTypes.Air;
+                    boolean solid = tt2.getProperties().solid;
                     TileMetadata tm2 = world.getMetadataIfAvailable(npos);
                     if (!solid) {
                         float nll = Math.max(0.0f,tm.lightValue - LIGHT_AIRSTEP);
