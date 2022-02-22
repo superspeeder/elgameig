@@ -255,7 +255,7 @@ public class World implements SimpleRenderable {
         }
 
         if (bgtt == TileTypes.Air && !fgtt.getProperties().solid && tilePos.y >= -25) { // sky behind
-            return 1.f;
+            return Math.max(fgtt.getProperties().emmission, 1.f);
         }
 
         if (fgtt.getProperties().emmission > 0.f) {
