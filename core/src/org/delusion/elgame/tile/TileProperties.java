@@ -1,12 +1,9 @@
 package org.delusion.elgame.tile;
 
-import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.item.tool.ToolType;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class TileProperties {
     public final boolean solid;
@@ -14,13 +11,15 @@ public class TileProperties {
     public final TileDropsFunction dropFunc;
     public final Set<ToolType> breakingTools;
     public final float hardness;
+    public final float emmission;
 
-    public TileProperties(boolean solid, boolean visible, TileDropsFunction dropFunc, Set<ToolType> breakingTools, float hardness) {
+    public TileProperties(boolean solid, boolean visible, TileDropsFunction dropFunc, Set<ToolType> breakingTools, float hardness, float emmission) {
         this.solid = solid;
         this.visible = visible;
         this.dropFunc = dropFunc;
         this.breakingTools = Collections.unmodifiableSet(breakingTools);
         this.hardness = hardness;
+        this.emmission = emmission;
     }
 
     static Builder builder() {
@@ -34,6 +33,7 @@ public class TileProperties {
         private TileDropsFunction dropFunc = TileDropsFunction.none;
         private Set<ToolType> breakingTools = Set.of();
         private float hardness = 0.0f;
+        private float emmission = 0.0f;
 
         private Builder() {
         }
@@ -72,9 +72,14 @@ public class TileProperties {
             this.hardness = hardness;
             return this;
         }
+
+        public Builder emmission(float emmission) {
+            this.emmission = emmission;
+            return this;
+        }
         
         public TileProperties build() {
-            return new TileProperties(solid, visible, dropFunc, breakingTools, hardness);
+            return new TileProperties(solid, visible, dropFunc, breakingTools, hardness, emmission);
         }
 
     }
