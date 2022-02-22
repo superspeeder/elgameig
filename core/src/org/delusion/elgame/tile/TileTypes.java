@@ -39,4 +39,9 @@ public class TileTypes {
             .drops(TileDropsFunction.supplier(() -> new Stack(Items.Torch)))
             .emmission(0.8f).intangible().build(), "tile");
 
+    public static final TileType SuperbrightTorch = new TileType(6, "Superbright Torch", TileProperties.builder()
+            .breakingTools(ToolType.Pickaxe, ToolType.Shovel)
+            .drops(TileDropsFunction.supplier(() -> new Stack(Items.Torch)))
+            .emmission(1.4f).intangible().build(), "tile");
+
 }

@@ -6,36 +6,43 @@ filter: Nearest, Nearest
 repeat: none
 tile
   rotate: false
-  xy: 2, 20
+  xy: 2, 22
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
 tile
   rotate: false
-  xy: 2, 2
+  xy: 2, 4
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: 2
 tile
   rotate: false
-  xy: 36, 36
+  xy: 36, 38
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: 3
 tile
   rotate: false
-  xy: 20, 2
+  xy: 20, 4
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: 4
 tile
   rotate: false
-  xy: 38, 18
+  xy: 38, 20
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: 5
+tile
+  rotate: false
+  xy: 38, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: 6
