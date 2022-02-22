@@ -18,7 +18,7 @@ public interface ItemUsageAction {
         return (player, world, tilePos, stack, firstUse) -> {
             if (player.distanceToTileCenter(tilePos) > REACH_MAX) return;
             if (stack.getCount() > 0) {
-                if (world.canPlaceAt(tilePos)) {
+                if (world.canPlaceAt(tilePos, ttype)) {
                     world.setTile(tilePos, ttype);
                     stack.add(-1);
                 }
