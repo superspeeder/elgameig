@@ -1,5 +1,9 @@
 package org.delusion.elgame.utils;
 
+import com.badlogic.gdx.math.Vector2;
+import org.delusion.elgame.world.Chunk;
+import org.delusion.elgame.world.World;
+
 public class Vector2i {
     public int x, y;
 
@@ -7,6 +11,23 @@ public class Vector2i {
         this.x = x;
         this.y = y;
     }
+
+    public static Vector2i worldToChunk(Vector2 position) {
+        return new Vector2i(Math.floorDiv((int)position.x, World.TILE_SIZE * Chunk.SIZE),Math.floorDiv((int)position.y, World.TILE_SIZE * Chunk.SIZE));
+    }
+
+    public static Vector2i worldToChunk(Vector2i position) {
+        return new Vector2i(Math.floorDiv(position.x, World.TILE_SIZE * Chunk.SIZE),Math.floorDiv(position.y, World.TILE_SIZE * Chunk.SIZE));
+    }
+
+    public static Vector2i tileToChunk(Vector2 position) {
+        return new Vector2i(Math.floorDiv((int)position.x, Chunk.SIZE),Math.floorDiv((int)position.y, Chunk.SIZE));
+    }
+
+    public static Vector2i tileToChunk(Vector2i position) {
+        return new Vector2i(Math.floorDiv(position.x, Chunk.SIZE),Math.floorDiv(position.y, Chunk.SIZE));
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -39,6 +39,7 @@ public class Player implements SimpleRenderable {
     private Texture boxg = new Texture(Gdx.files.internal("textures/selection_boxg.png"));
     private float zoom = 0.7f;
     private Rectangle intersection_blank = new Rectangle();
+    private Vector2i lastChunk;
 
     public Player(World world) {
         hotbar = new Hotbar(world.getGame().getUIBatch(), this);
@@ -53,6 +54,8 @@ public class Player implements SimpleRenderable {
         internalSprite.setSize(16, 24);
         internalSprite.setOrigin(0,0);
         inventory = new PlayerInventory(world.getGame().getUIBatch(), this);
+
+        lastChunk = Vector2i.worldToChunk(position);
     }
 
     public Player setPosition(Vector2 position) {
@@ -142,6 +145,14 @@ public class Player implements SimpleRenderable {
 
         camera.position.set(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f, camera.position.z);
         camera.update();
+
+        Vector2i curChunk = Vector2i.worldToChunk(position);
+
+        if (!lastChunk.equals(curChunk)) {
+            world.recalculateLightIfAvailable(curChunk);
+            lastChunk = curChunk;
+        }
+
     }
 
     private void checkCollisionsX() {
