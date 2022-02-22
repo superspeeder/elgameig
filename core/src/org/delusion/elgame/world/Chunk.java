@@ -1,11 +1,9 @@
 package org.delusion.elgame.world;
 
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -16,9 +14,16 @@ import org.delusion.elgame.utils.AABBi;
 import org.delusion.elgame.utils.Vector2i;
 
 public class Chunk implements Disposable {
+    private static final int BORDER_BIT_LEFT = 0b1;
+    private static final int BORDER_BIT_RIGHT = 0b10;
+    private static final int BORDER_BIT_TOP = 0b100;
+    private static final int BORDER_BIT_BOTTOM = 0b1000;
+
+
     public static final int SIZE = 50;
     public static final float LIGHT_AIRSTEP = 0.05f;
     public static final float LIGHT_SOLIDSTEP = 0.1f;
+    private static final float BORDER_LINE_WIDTH = 1.0f;
 
     private Vector2i position;
     private AABBi bounds;
@@ -27,6 +32,7 @@ public class Chunk implements Disposable {
     private TileType[][] backgroundTilemap;
     private TileMetadata[][] metadataMap;
     private boolean lightingMappedFirstTime = false;
+    private boolean bordersMappedFirstTime = false;
 
     public Chunk(World world, Vector2i pos) {
         map = new TileType[SIZE][SIZE];
@@ -81,6 +87,20 @@ public class Chunk implements Disposable {
         }
     }
 
+    public boolean isBordersMappedFirstTime() {
+        return bordersMappedFirstTime;
+    }
+
+    public void recalculateBorders() {
+        for (int x = bounds.left - 1 ; x <= bounds.right ; x++) {
+            for (int y = bounds.bottom - 1 ; y <= bounds.top ; y++) {
+                updateBorder(x, y);
+            }
+        }
+
+        bordersMappedFirstTime = true;
+    }
+
     public void setBg(int localX, int localY, TileType type) {
         backgroundTilemap[localX][localY] = type;
     }
@@ -126,16 +146,16 @@ public class Chunk implements Disposable {
     }
 
     public void recalculateLighting() {
-        recalculateLightingInternal(true, false);
+        recalculateLightingInternal(true, false, 0);
     }
 
     public void recalculateLightingNC() {
         if (lightingMappedFirstTime) {
-            recalculateLightingInternal(false, true);
+            recalculateLightingInternal(false, true, 0);
         }
     }
 
-    public void recalculateLightingInternal(boolean cbk, boolean trytokeep) {
+    public void recalculateLightingInternal(boolean cbk, boolean trytokeep, int cascadingLayers) {
         Queue<Vector2i> pendingWorldPositions = new LinkedList<>();
 
         for (int x = 0 ; x < SIZE ; x++) {
@@ -161,15 +181,27 @@ public class Chunk implements Disposable {
         }
 
         if (cbk) {
-            world.recalculateLightNCIfAvailable(position.x - 1, position.y);
-            world.recalculateLightNCIfAvailable(position.x + 1, position.y);
-            world.recalculateLightNCIfAvailable(position.x, position.y - 1);
-            world.recalculateLightNCIfAvailable(position.x, position.y + 1);
+            if (cascadingLayers > 0) {
+                world.recalculateLightCIfAvailable(position.x - 1, position.y, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x + 1, position.y, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x, position.y - 1, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x, position.y + 1, cascadingLayers - 1);
 
-            world.recalculateLightNCIfAvailable(position.x - 1, position.y - 1);
-            world.recalculateLightNCIfAvailable(position.x + 1, position.y - 1);
-            world.recalculateLightNCIfAvailable(position.x - 1, position.y + 1);
-            world.recalculateLightNCIfAvailable(position.x + 1, position.y + 1);
+                world.recalculateLightCIfAvailable(position.x - 1, position.y - 1, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x + 1, position.y - 1, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x - 1, position.y + 1, cascadingLayers - 1);
+                world.recalculateLightCIfAvailable(position.x + 1, position.y + 1, cascadingLayers - 1);
+            } else {
+                world.recalculateLightNCIfAvailable(position.x - 1, position.y);
+                world.recalculateLightNCIfAvailable(position.x + 1, position.y);
+                world.recalculateLightNCIfAvailable(position.x, position.y - 1);
+                world.recalculateLightNCIfAvailable(position.x, position.y + 1);
+
+                world.recalculateLightNCIfAvailable(position.x - 1, position.y - 1);
+                world.recalculateLightNCIfAvailable(position.x + 1, position.y - 1);
+                world.recalculateLightNCIfAvailable(position.x - 1, position.y + 1);
+                world.recalculateLightNCIfAvailable(position.x + 1, position.y + 1);
+            }
         }
 
         int iters = 0;
@@ -314,5 +346,108 @@ public class Chunk implements Disposable {
 
     public boolean isLightingMappedFirstTime() {
         return lightingMappedFirstTime;
+    }
+
+    public void updateBorder(int x, int y) {
+        TileMetadata tm = world.getMetadataIfAvailable(x, y);
+        TileType tt = world.getTileIfAvailable(x, y);
+
+        if (tm == null || tt == null) return;
+
+        { // left
+            TileType tt2 = world.getTileIfAvailable(x - 1, y);
+            if (tt2 != null) {
+                if (tt.getProperties().solid == tt2.getProperties().solid) {
+                    tm.border ^= tm.border & BORDER_BIT_LEFT;
+                    TileMetadata tm2 = world.getMetadataIfAvailable(x - 1, y);
+                    if (tm2 != null) {
+                        tm2.border ^= tm2.border & BORDER_BIT_RIGHT;
+                    }
+                } else {
+                    tm.border |= BORDER_BIT_LEFT;
+                }
+            }
+        }
+
+        { // right
+            TileType tt2 = world.getTileIfAvailable(x + 1, y);
+            if (tt2 != null) {
+                if (tt.getProperties().solid == tt2.getProperties().solid) {
+                    tm.border ^= tm.border & BORDER_BIT_RIGHT;
+                    TileMetadata tm2 = world.getMetadataIfAvailable(x + 1, y);
+                    if (tm2 != null) {
+                        tm2.border ^= tm2.border & BORDER_BIT_LEFT;
+                    }
+                } else {
+                    tm.border |= BORDER_BIT_RIGHT;
+                }
+            }
+        }
+
+        { // top
+            TileType tt2 = world.getTileIfAvailable(x , y + 1);
+            if (tt2 != null) {
+                if (tt.getProperties().solid == tt2.getProperties().solid) {
+                    tm.border ^= tm.border & BORDER_BIT_TOP;
+                    TileMetadata tm2 = world.getMetadataIfAvailable(x, y + 1);
+                    if (tm2 != null) {
+                        tm2.border ^= tm2.border & BORDER_BIT_BOTTOM;
+                    }
+                } else {
+                    tm.border |= BORDER_BIT_TOP;
+                }
+            }
+        }
+
+        { // bottom
+            TileType tt2 = world.getTileIfAvailable(x, y - 1);
+            if (tt2 != null) {
+                if (tt.getProperties().solid == tt2.getProperties().solid) {
+                    tm.border ^= tm.border & BORDER_BIT_BOTTOM;
+                    TileMetadata tm2 = world.getMetadataIfAvailable(x, y - 1);
+                    if (tm2 != null) {
+                        tm2.border ^= tm2.border & BORDER_BIT_TOP;
+                    }
+                } else {
+                    tm.border |= BORDER_BIT_BOTTOM;
+                }
+            }
+        }
+    }
+
+    public void renderBordersTo(ShapeRenderer shapeRenderer) {
+        for (int x = 0 ; x < SIZE ; x++) {
+            for (int y = 0 ; y < SIZE ; y++) {
+                TileMetadata m = metadataMap[x][y];
+                renderBordersAt(shapeRenderer, m.border, x + position.x * SIZE, y + position.y * SIZE);
+            }
+        }
+    }
+
+    private void renderBordersAt(ShapeRenderer shapeRenderer, byte border, int x, int y) {
+        if ((border & BORDER_BIT_BOTTOM) != 0) {
+            shapeRenderer.rectLine(x * World.TILE_SIZE, y * World.TILE_SIZE, (x + 1) * World.TILE_SIZE, y * World.TILE_SIZE, BORDER_LINE_WIDTH);
+        }
+        if ((border & BORDER_BIT_TOP) != 0) {
+            shapeRenderer.rectLine(x * World.TILE_SIZE, (y + 1) * World.TILE_SIZE, (x + 1) * World.TILE_SIZE, (y + 1) * World.TILE_SIZE, BORDER_LINE_WIDTH);
+        }
+        if ((border & BORDER_BIT_LEFT) != 0) {
+            shapeRenderer.rectLine(x * World.TILE_SIZE, y * World.TILE_SIZE, x * World.TILE_SIZE, (y + 1) * World.TILE_SIZE, BORDER_LINE_WIDTH);
+        }
+        if ((border & BORDER_BIT_RIGHT) != 0) {
+            shapeRenderer.rectLine((x + 1) * World.TILE_SIZE, y * World.TILE_SIZE, (x + 1) * World.TILE_SIZE, (y + 1) * World.TILE_SIZE, BORDER_LINE_WIDTH);
+        }
+    }
+
+    public void recalculateLighting(int x, int y) {
+        if (world.getGame().getSettings().advancedLightCascade && (x <= 4 || x >= SIZE - 4 || y <= 4 || y >= SIZE - 4)) {
+            recalculateLightingC(false,1);
+        } else {
+            recalculateLighting();
+        }
+    }
+
+    public void recalculateLightingC(boolean tryKeep, int cls) {
+        recalculateLightingInternal(true,tryKeep,cls);
     }
 }
