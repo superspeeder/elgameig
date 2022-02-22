@@ -165,8 +165,8 @@ public class World implements SimpleRenderable {
         setTile(tilePos.x, tilePos.y, Objects.requireNonNullElse(ttype, TileTypes.Air));
     }
 
-    public boolean canPlaceAt(Vector2i tilePos) {
-        return getTile(tilePos).getNow(null) == TileTypes.Air && !collidesWithEntities(tilePos);
+    public boolean canPlaceAt(Vector2i tilePos, TileType ttype) {
+        return getTile(tilePos).getNow(null) == TileTypes.Air && !(ttype.getProperties().solid & collidesWithEntities(tilePos));
     }
 
     private boolean collidesWithEntities(Vector2i tilePos) {
