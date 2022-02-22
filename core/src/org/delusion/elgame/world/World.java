@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.player.Player;
+import org.delusion.elgame.tile.TileMetadata;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.tile.TileTypes;
 import org.delusion.elgame.utils.AABBi;
@@ -16,7 +17,9 @@ import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class World implements SimpleRenderable {
 
@@ -73,7 +76,10 @@ public class World implements SimpleRenderable {
             localPos.y = Chunk.SIZE - localPos.y;
         }
 
-        chunkCache.get(chunkPos).thenAccept(chunk -> chunk.set(localPos.x, localPos.y, ttype));
+        chunkCache.get(chunkPos).thenAccept(chunk -> {
+            chunk.set(localPos.x, localPos.y, ttype);
+            chunk.recalculateLighting();
+        });
     }
 
     @Override
@@ -129,6 +135,9 @@ public class World implements SimpleRenderable {
     private void renderChunk(int cx, int cy) {
         Chunk nc = chunkCache.get(new Vector2i(cx, cy)).getNow(null);
         if (nc != null) {
+            if (!nc.isLightingMappedFirstTime()) {
+                nc.recalculateLighting();
+            }
             nc.renderTo(batch);
         }
         batch.setColor(Color.WHITE);
@@ -189,7 +198,7 @@ public class World implements SimpleRenderable {
 
         return chunkCache.get(chunkPos).thenApply(chunk -> chunk.getBg(localPos.x, localPos.y));
     }
-
+    
     public void setTileBg(Vector2i tilePos, TileType ttype) {
         setTileBg(tilePos.x, tilePos.y, Objects.requireNonNullElse(ttype, TileTypes.Air));
     }
@@ -206,6 +215,144 @@ public class World implements SimpleRenderable {
             localPos.y = Chunk.SIZE - localPos.y;
         }
 
-        chunkCache.get(chunkPos).thenAccept(chunk -> chunk.setBg(localPos.x, localPos.y, ttype));
+        chunkCache.get(chunkPos).thenAccept(chunk -> {
+            chunk.setBg(localPos.x, localPos.y, ttype);
+            chunk.recalculateLighting();
+        });
     }
+
+    public float getEmmittedLight(Vector2i tilePos) {
+        TileType fgtt = getTileIfAvailable(tilePos);
+        TileType bgtt = getTileBgIfAvailable(tilePos);
+
+        if (fgtt == null || bgtt == null) {
+            return -1.0f;
+        }
+
+        if (bgtt == TileTypes.Air && fgtt == TileTypes.Air && tilePos.y >= -5) { // sky behind
+            return 1.f;
+        }
+
+        return 0.f;
+    }
+
+    public TileType getTileBgIfAvailable(Vector2i tilePos) {
+        return getTileBgIfAvailable(tilePos.x, tilePos.y);
+    }
+
+    public TileType getTileBgIfAvailable(int x, int y) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return null;
+        try {
+            return c.thenApply(ch -> ch.getBg(localPos)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public TileType getTileIfAvailable(Vector2i tilePos) {
+        return getTileIfAvailable(tilePos.x, tilePos.y);
+    }
+
+    public TileType getTileIfAvailable(int x, int y) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return null;
+        try {
+            return c.thenApply(ch -> ch.get(localPos)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public CompletableFuture<TileMetadata> getMetadata(int x, int y) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        return chunkCache.get(chunkPos).thenApply(chunk -> chunk.getMetadata(localPos.x, localPos.y));
+    }
+
+    public CompletableFuture<TileMetadata> getMetadata(Vector2i tilePos) {
+        return getMetadata(tilePos.x, tilePos.y);
+    }
+
+
+    public TileMetadata getMetadataIfAvailable(Vector2i tilePos) {
+        return getMetadataIfAvailable(tilePos.x, tilePos.y);
+    }
+
+    private TileMetadata getMetadataIfAvailable(int x, int y) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return null;
+        try {
+            return c.thenApply(ch -> ch.getMetadata(localPos)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void recalculateLightIfAvailable(int x, int y) {
+        recalculateLightIfAvailable(new Vector2i(x, y));
+    }
+
+    public void recalculateLightIfAvailable(Vector2i chunkPos) {
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return;
+        c.thenAccept(Chunk::recalculateLighting);
+    }
+
+    public void recalculateLightNCIfAvailable(int x, int y) {
+        recalculateLightNCIfAvailable(new Vector2i(x, y));
+    }
+
+    public void recalculateLightNCIfAvailable(Vector2i chunkPos) {
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return;
+        c.thenAccept(Chunk::recalculateLightingNC);
+    }
+
 }
