@@ -114,3 +114,11 @@ Thumbs.db
 /ios/xcode/native/
 /ios/IOSLauncher.app
 /ios/IOSLauncher.app.dSYM
+
+## My Shit
+*.atlas
+/core/assets/textures/ui/slotAtlas.png
+/core/assets/textures/item/items.png
+/core/assets/textures/ui/slotAtlas2.png
+/core/assets/textures/tileAtlas.png
+
