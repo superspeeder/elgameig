@@ -18,6 +18,9 @@ public class MainGameInput extends InputAdapter {
             case Input.Keys.F3:
                 mainGameScreen.getDebugUI().toggle();
                 return true;
+            case Input.Keys.F1:
+                mainGameScreen.getGame().getSettings().advancedLightCascade = !mainGameScreen.getGame().getSettings().advancedLightCascade;
+                return true;
             case Input.Keys.ESCAPE:
                 mainGameScreen.getGame().setScreen(mainGameScreen.getGame().getMainMenuScreen());
                 return true;

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -17,11 +18,12 @@ import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class World implements SimpleRenderable {
+
+    private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public enum Layer {
         Main, BG
@@ -78,7 +80,8 @@ public class World implements SimpleRenderable {
 
         chunkCache.get(chunkPos).thenAccept(chunk -> {
             chunk.set(localPos.x, localPos.y, ttype);
-            chunk.recalculateLighting();
+            chunk.updateBorder(x, y);
+            chunk.recalculateLighting(localPos.x, localPos.y);
         });
     }
 
@@ -120,8 +123,30 @@ public class World implements SimpleRenderable {
 
         batch.end();
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setTransformMatrix(game.getPlayer().getCamera().view);
+        shapeRenderer.setProjectionMatrix(game.getPlayer().getCamera().projection);
+
+        for (int cx = leftC ; cx <= rightC ; cx++) {
+            for (int cy = bottomC ; cy <= topC ; cy++) {
+                renderChunkBorders(cx,cy);
+            }
+        }
+
+        shapeRenderer.end();
 
         renderEntities();
+    }
+
+    private void renderChunkBorders(int cx, int cy) {
+        shapeRenderer.setColor(Color.BLACK);
+        Chunk nc = chunkCache.get(new Vector2i(cx, cy)).getNow(null);
+        if (nc != null) {
+            if (!nc.isBordersMappedFirstTime()) {
+                nc.recalculateBorders();
+            }
+            nc.renderBordersTo(shapeRenderer);
+        }
     }
 
     void renderEntities() {
@@ -229,8 +254,8 @@ public class World implements SimpleRenderable {
             return -1.0f;
         }
 
-        if (bgtt == TileTypes.Air && !fgtt.getProperties().solid && tilePos.y >= -5) { // sky behind
-            return 1.f;
+        if (bgtt == TileTypes.Air && !fgtt.getProperties().solid && tilePos.y >= -25) { // sky behind
+            return Math.max(fgtt.getProperties().emmission, 1.f);
         }
 
         if (fgtt.getProperties().emmission > 0.f) {
@@ -317,7 +342,7 @@ public class World implements SimpleRenderable {
         return getMetadataIfAvailable(tilePos.x, tilePos.y);
     }
 
-    private TileMetadata getMetadataIfAvailable(int x, int y) {
+    public TileMetadata getMetadataIfAvailable(int x, int y) {
         Vector2i chunkPos = new Vector2i(Math.floorDiv(x, Chunk.SIZE), Math.floorDiv(y, Chunk.SIZE));
         Vector2i localPos = new Vector2i(Math.floorMod(x, Chunk.SIZE), Math.floorMod(y, Chunk.SIZE));
 
@@ -358,5 +383,16 @@ public class World implements SimpleRenderable {
         if (c == null) return;
         c.thenAccept(Chunk::recalculateLightingNC);
     }
+
+    public void recalculateLightCIfAvailable(int x, int y, int cls) {
+        recalculateLightCIfAvailable(new Vector2i(x,y), cls);
+    }
+
+    public void recalculateLightCIfAvailable(Vector2i chunkPos, int cls) {
+        CompletableFuture<Chunk> c = chunkCache.getIfPresent(chunkPos);
+        if (c == null) return;
+        c.thenAccept(chunk -> chunk.recalculateLightingC(false,cls));
+    }
+
 
 }
