@@ -17,6 +17,18 @@ public class Items {
         .create("stone", 200)
         .placeResult(TileTypes.Stone).build();
 
+    public static final Item CoalOre = Item.Builder
+            .create("coal-ore", 200)
+            .placeResult(TileTypes.CoalOre).build();
+
+    public static final Item CopperOre = Item.Builder
+            .create("copper-ore", 200)
+            .placeResult(TileTypes.CopperOre).build();
+
+    public static final Item IronOre = Item.Builder
+            .create("iron-ore", 200)
+            .placeResult(TileTypes.IronOre).build();
+
     public static final Item Pickaxe = Item.Builder
             .create("pick", 1).miningTool(1.0f, 0.005f)
             .toolTypes(ToolType.Pickaxe).build();

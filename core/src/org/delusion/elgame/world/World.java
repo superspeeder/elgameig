@@ -21,6 +21,7 @@ import org.delusion.elgame.tile.TileTypes;
 import org.delusion.elgame.utils.AABBi;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
+import org.delusion.elgame.world.generator.WorldGenerator;
 
 import java.util.List;
 import java.util.Objects;
@@ -117,6 +118,7 @@ public class World implements SimpleRenderable, Disposable {
     private final SpriteBatch entityBatch;
 
     private Player player;
+    private WorldGenerator worldGenerator;
 
     public World(ElGame game) {
         this.game = game;
@@ -135,6 +137,11 @@ public class World implements SimpleRenderable, Disposable {
         //caveTex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
         forestBackdrop = new ParallaxBackdrop(List.of(Pair.of(forestTex1, 12),Pair.of(forestTex2, 34),Pair.of(forestTex3, 100)));
         caveBackdrop = new ParallaxBackdrop(List.of(Pair.of(caveTex1, 10),Pair.of(caveTex2, 100)));
+        worldGenerator = new WorldGenerator();
+    }
+
+    public WorldGenerator getWorldGenerator() {
+        return worldGenerator;
     }
 
     public static Vector2i toTilePos(Vector2 translated) {
@@ -375,7 +382,7 @@ public class World implements SimpleRenderable, Disposable {
 
         return chunkCache.get(chunkPos).thenApply(chunk -> chunk.getBg(localPos.x, localPos.y));
     }
-    
+
     public void setTileBg(Vector2i tilePos, TileType ttype) {
         setTileBg(tilePos.x, tilePos.y, Objects.requireNonNullElse(ttype, TileTypes.Air));
     }
@@ -514,6 +521,22 @@ public class World implements SimpleRenderable, Disposable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public CompletableFuture<Chunk> getChunk(int x, int y) {
+        return getChunk(new Vector2i(x, y));
+    }
+
+    public CompletableFuture<Chunk> getChunk(Vector2i pos) {
+        return chunkCache.get(pos);
+    }
+
+    public Chunk getChunkOrNull(int x, int y) {
+        return getChunk(x, y).getNow(null);
+    }
+
+    public Chunk getChunkOrNull(Vector2i pos) {
+        return getChunk(pos).getNow(null);
     }
 
     public void recalculateLightIfAvailable(int x, int y) {

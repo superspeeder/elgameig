@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
+import org.delusion.elgame.world.Chunk;
 import org.delusion.elgame.world.World;
 
 public class DebugUI implements SimpleRenderable {
@@ -39,5 +40,8 @@ public class DebugUI implements SimpleRenderable {
         Vector2i tp = game.getPlayer().tileFromScreenPos(Gdx.input.getX(), Gdx.input.getY());
         font.draw(batch, String.format("Hovered Tile: (%d, %d)", tp.x, tp.y), 20, Gdx.graphics.getHeight() - 80);
         font.draw(batch, String.format("Zoom: %f", game.getPlayer().getZoom()), 20, Gdx.graphics.getHeight() - 100);
+        font.draw(batch, String.format("Current Chunk: (%d,%d)", Math.floorDiv((int) game.getPlayer().getPosition().x, World.TILE_SIZE * Chunk.SIZE), Math.floorDiv((int) game.getPlayer().getPosition().y , World.TILE_SIZE * Chunk.SIZE)), 20, Gdx.graphics.getHeight() - 120);
+        font.draw(batch, String.format("Current Chunk Surface Temperature: (%f)", game.getWorld().getChunkOrNull(Math.floorDiv((int) game.getPlayer().getPosition().x, World.TILE_SIZE * Chunk.SIZE), Math.floorDiv((int) game.getPlayer().getPosition().y, World.TILE_SIZE * Chunk.SIZE)).getHistoricTemperature()), 20, Gdx.graphics.getHeight() - 140);
+        font.draw(batch, String.format("Current Chunk Pressure: (%f)", game.getWorld().getChunkOrNull(Math.floorDiv((int) game.getPlayer().getPosition().x, World.TILE_SIZE * Chunk.SIZE), Math.floorDiv((int) game.getPlayer().getPosition().y, World.TILE_SIZE * Chunk.SIZE)).getHistoricPressure()), 20, Gdx.graphics.getHeight() - 160);
     }
 }

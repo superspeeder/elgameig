@@ -43,6 +43,8 @@ public class Chunk implements Disposable {
     private float[][] breakProgressForeground;
     private float[][] breakProgressBackground;
 
+    private double historicTemperature;
+    private double historicPressure;
     private boolean lightingMappedFirstTime = false;
     private boolean bordersMappedFirstTime = false;
 
@@ -110,6 +112,9 @@ public class Chunk implements Disposable {
             }
             localX++;
         }
+        historicPressure = world.getWorldGenerator().historicPressure(position.x, position.y);
+        historicTemperature = world.getWorldGenerator().historicTemperature(position.x, position.y);
+
     }
 
     public boolean isBordersMappedFirstTime() {
@@ -125,6 +130,9 @@ public class Chunk implements Disposable {
 
         bordersMappedFirstTime = true;
     }
+
+    public double getHistoricPressure() { return historicPressure; }
+    public double getHistoricTemperature() { return historicTemperature; }
 
     public void setBg(int localX, int localY, TileType type) {
         backgroundTilemap[localX][localY] = type;

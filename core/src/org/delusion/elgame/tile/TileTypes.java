@@ -46,4 +46,18 @@ public class TileTypes {
             .drops(TileDropsFunction.supplier(() -> new Stack(Items.Torch)))
             .emmission(1.4f).intangible().build(), "tile");
 
+    public static final TileType CoalOre = new TileType(50, "Coal Ore", TileProperties.builder()
+            .hardness(1.5f)
+            .drops(TileDropsFunction.supplier(() -> new Stack(Items.CoalOre)))
+            .breakingTools(ToolType.Pickaxe).build(), "tile");
+
+    public static final TileType CopperOre = new TileType(51, "Copper Ore", TileProperties.builder()
+            .hardness(2.0f)
+            .drops(TileDropsFunction.supplier(() -> new Stack(Items.CopperOre)))
+            .breakingTools(ToolType.Pickaxe).build(), "tile");
+
+    public static final TileType IronOre = new TileType(52, "Iron Ore", TileProperties.builder()
+            .hardness(2.5f)
+            .drops(TileDropsFunction.supplier(() -> new Stack(Items.IronOre)))
+            .breakingTools(ToolType.Pickaxe).build(), "tile");
 }

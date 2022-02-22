@@ -4,7 +4,7 @@
 - [x] Player sprite rendering
 - [x] Player physics
 - [x] Debug UI
-- [ ] Background Tiles
+- [x] Background Tiles
 - [ ] World Generation
   - [ ] Mapping various criteria to noise maps
     - [ ] Humidity
@@ -19,4 +19,35 @@
         - [ ] Strength of fault determines how extreme/tall the mountains will be
         - [ ] if strength is high enough, the mountain may be a volcano.
   - [ ] Structures
-
+- [x] Lighting
+- [x] Torches
+- [x] Tile Borders
+- [x] Hotbar
+- [x] Inventory
+- [x] Items
+- [ ] World Modification
+  - [x] Tools
+  - [x] Placeable Tiles
+  - [ ] Saving World & Player Data
+- [ ] Interactable Tiles
+- [ ] Settings Menu
+- [ ] Pause Menu
+- [ ] NPCs
+  - [ ] Dialog
+  - [ ] Trade System
+  - [ ] Currency System
+    - [ ] Money
+    - [ ] Payment
+  - [ ] Skill Education
+  - [ ] Activities
+  - [ ] Side-Quest Things (do x,y,or z to help npc complete activity for a random reward)
+- [ ] Skills
+  - [ ] Skill Tree
+  - [ ] Contextual Skill Discovery
+  - [ ] Player Starting Skill Configuration Pool
+- [ ] Towns
+  - [ ] Town Founding
+  - [ ] Town Destruction
+  - [ ] Town Tier Levels (Community, Village, Town, City)
+  - [ ] Town Growth
+- [ ] Day/Night Cycle

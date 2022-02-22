@@ -53,6 +53,7 @@ public class Hotbar implements IInventory, SimpleRenderable {
         slots[2].setStack(new Stack(Items.SuperPickaxe, 1));
         slots[3].setStack(new Stack(Items.Torch, 99));
         slots[4].setStack(new Stack(Items.SuperbrightTorch, 30));
+        slots[8].setStack(new Stack(Items.CoalOre, 200));
         slots[9].setStack(new Stack(Items.Grass, 200));
     }
 
