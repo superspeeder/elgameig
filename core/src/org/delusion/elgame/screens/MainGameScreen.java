@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -46,6 +47,40 @@ public class MainGameScreen extends ScreenAdapter {
     public void render(float delta) {
         ScreenUtils.clear(Color.BLACK);
 
+
+        double sicp = game.getPlayer().getSpawninCooldownPercent();
+        if (sicp > 0.0f) {
+
+            float spc = (float) (1.0f  - sicp);
+
+            game.getPlayer().updateC(delta);
+            game.getWorld().render();
+
+            uishapes.begin(ShapeRenderer.ShapeType.Filled);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            uishapes.setColor(0.0f, 0.0f, 0.0f, 0.6f);
+            uishapes.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            uishapes.setColor(new Color(0x204a1faf));
+            uishapes.circle(Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() / 2.f, Gdx.graphics.getWidth() * 0.025f);
+            uishapes.circle(Gdx.graphics.getWidth() * 0.7f, Gdx.graphics.getHeight() / 2.f, Gdx.graphics.getWidth() * 0.025f);
+            uishapes.rect(Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.5f - Gdx.graphics.getWidth() * 0.025f, Gdx.graphics.getWidth() * 0.4f, Gdx.graphics.getWidth() * 0.05f);
+
+            uishapes.setColor(new Color(0x1ab017ff));
+            uishapes.circle(Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() / 2.f, Gdx.graphics.getWidth() * 0.02f);
+            uishapes.rect(Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.5f - Gdx.graphics.getWidth() * 0.02f, Gdx.graphics.getWidth() * 0.4f * spc, Gdx.graphics.getWidth() * 0.04f);
+            uishapes.circle(Gdx.graphics.getWidth() * 0.3f + Gdx.graphics.getWidth() * 0.4f * spc, Gdx.graphics.getHeight() / 2.f, Gdx.graphics.getWidth() * 0.02f);
+
+            uishapes.setColor(1.f, 1.f, 1.f, 1.f);
+
+
+            uishapes.end();
+
+
+            game.getPlayer().load();
+            return;
+        }
+
         if (delta > 1 / 30.0f) {
             delta = 1 / 30.0f;
         }
@@ -81,6 +116,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
+
     }
 
     public Toggleable<DebugUI> getDebugUI() {

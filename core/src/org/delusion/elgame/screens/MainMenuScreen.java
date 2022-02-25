@@ -16,11 +16,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import org.delusion.elgame.ElGame;
+import org.delusion.elgame.data.DataManager;
 
 public class MainMenuScreen extends ScreenAdapter {
+    public static final Color BGTINT = new Color(0x7f7f7fff);
     private final ElGame game;
     private MainMenuButton playGameButton;
     private MainMenuButton exitButton;
+    private MainMenuButton resetButton;
     private MainMenuButton settingsButton;
     private Container<VerticalGroup> group;
     private FreeTypeFontGenerator fontGen;
@@ -59,7 +62,6 @@ public class MainMenuScreen extends ScreenAdapter {
             setActor(new TextButton(text, tbskin));
             minWidth(glyt.width * 3.f);
             prefHeight(glyt.height * 1.8f);
-//            maxSize(glyt.width * 3.f, glyt.height * 1.8f);
             maxHeight(glyt.height * 1.8f);
             minHeight(glyt.height * 1.8f);
             fill();
@@ -76,11 +78,14 @@ public class MainMenuScreen extends ScreenAdapter {
     public MainMenuScreen(ElGame game) {
         this.game = game;
         stage = new Stage();
-//        stage.setDebugAll(true);
+        Image bg = new Image(new Texture("textures/backgrounds/menu.png"));
+        bg.setPosition(0, 0);
+        bg.setSize(stage.getWidth(), stage.getHeight());
+        bg.setColor(MainMenuScreen.BGTINT);
+        stage.addActor(bg);
         fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto/Roboto-Regular.ttf"));
 
         group = new Container<>(new VerticalGroup());
-//        group.debug();
         group.getActor().center().bottom();
         group.getActor().fill();
         group.maxWidth(stage.getWidth() * 0.6666666666666667f);
@@ -94,6 +99,7 @@ public class MainMenuScreen extends ScreenAdapter {
         playGameButton = new MainMenuButton("Play", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                game.getPlayer().beginSpawnin();
                 game.setScreen(game.getMainGameScreen());
             }
         });
@@ -105,6 +111,15 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         });
 
+        resetButton = new MainMenuButton("Reset", new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                DataManager.destroySaveData();
+                game.getWorld().reloadAll();
+                game.getPlayer().reset();
+                DataManager.unlockSaves();
+            }
+        });
         settingsButton = new MainMenuButton("Settings", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -115,6 +130,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
         group.getActor().addActor(playGameButton);
         group.getActor().addActor(exitButton);
+        group.getActor().addActor(resetButton);
         group.getActor().addActor(settingsButton);
 
         group.setFillParent(true);

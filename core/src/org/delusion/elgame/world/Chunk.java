@@ -1,12 +1,18 @@
 package org.delusion.elgame.world;
 
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.*;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Disposable;
+import com.brashmonkey.spriter.Data;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.delusion.elgame.data.DataManager;
 import org.delusion.elgame.tile.TileMetadata;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.tile.TileTypes;
@@ -43,7 +49,7 @@ public class Chunk implements Disposable {
         this.world = world;
         bounds = new AABBi(position.x * SIZE, position.x * SIZE + SIZE, position.y * SIZE, position.y * SIZE + SIZE);
 
-        generate();
+        load();
     }
 
     private void generate() {
@@ -119,10 +125,10 @@ public class Chunk implements Disposable {
 
     @Override
     public void dispose() {
-
+        save();
     }
 
-    public static void evictionListener(@Nullable Vector2i pos, @Nullable Chunk chunk, RemovalCause removalCause) {
+    public static void removalListener(@Nullable Vector2i pos, @Nullable Chunk chunk, RemovalCause removalCause) {
         if (chunk != null) {
             chunk.dispose();
         }
@@ -449,5 +455,69 @@ public class Chunk implements Disposable {
 
     public void recalculateLightingC(boolean tryKeep, int cls) {
         recalculateLightingInternal(true,tryKeep,cls);
+    }
+
+    public void save() {
+        if (!DataManager.canSave()) return;
+        Path fpath = DataManager.ROOT_STORAGE_PATH.resolve(String.format("chunks/%d_%d.chunk", position.x, position.y));
+
+
+        ByteBuffer bb = ByteBuffer.allocate(SIZE * SIZE * 2 * Integer.BYTES); // WORLD_SAVE_SIZE
+        for (int x = 0 ; x < SIZE ; x++) {
+            for (int y = 0 ; y < SIZE ; y++) {
+                bb.putInt(get(x, y).getId());
+                bb.putInt(getBg(x, y).getId());
+            }
+        }
+
+        File sfile = fpath.toFile();
+
+        if (!sfile.exists()) {
+            try {
+                File dir = fpath.getParent().toFile();
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+
+                sfile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try (FileOutputStream stream = new FileOutputStream(sfile)) {
+            stream.getChannel().write(bb.rewind());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.printf("Saved chunk %d, %d\n", position.x, position.y);
+
+    }
+
+    public void load() {
+        Path fpath = DataManager.ROOT_STORAGE_PATH.resolve(String.format("chunks/%d_%d.chunk", position.x, position.y));
+        File sfile = fpath.toFile();
+        if (!sfile.exists()) {
+            generate();
+            save();
+            return;
+        }
+        try (FileInputStream stream = new FileInputStream(sfile)) {
+            FileChannel channel = stream.getChannel();
+            ByteBuffer bb = ByteBuffer.allocate((int) channel.size());
+            channel.read(bb);
+            bb.rewind();
+            for (int x = 0 ; x < SIZE ; x++) {
+                for (int y = 0 ; y < SIZE ; y++) {
+                    map[x][y] = TileType.fromId(bb.getInt());
+                    backgroundTilemap[x][y] = TileType.fromId(bb.getInt());
+                    metadataMap[x][y] = new TileMetadata();
+                    metadataMap[x][y].lightValue = 0.0f;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.printf("Loaded chunk %d, %d\n", position.x, position.y);
     }
 }

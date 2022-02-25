@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import org.delusion.elgame.item.Item;
 
-public class Stack {
+import java.io.Serializable;
+
+public class Stack implements Serializable {
 
     private Item item;
     private int count;

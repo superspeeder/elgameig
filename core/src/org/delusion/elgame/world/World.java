@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.delusion.elgame.ElGame;
@@ -18,12 +19,31 @@ import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class World implements SimpleRenderable {
+public class World implements SimpleRenderable, Disposable {
 
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+    public void reloadAll() {
+        Set<Vector2i> ks = chunkCache.synchronous().asMap().keySet();
+        chunkCache.synchronous().refreshAll(ks);
+    }
+
+    public void saveAll() {
+        Set<Vector2i> ks = chunkCache.synchronous().asMap().keySet();
+        try {
+            chunkCache.getAll(ks).get().forEach((vector2i, chunk) -> chunk.save());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean chunkIsAvaiable(Vector2i cpos) {
+        return chunkCache.getIfPresent(cpos) != null;
+    }
 
     public enum Layer {
         Main, BG
@@ -35,7 +55,7 @@ public class World implements SimpleRenderable {
     private final ElGame game;
     private final AsyncLoadingCache<Vector2i, Chunk> chunkCache = Caffeine.newBuilder()
             .maximumSize(MAX_CHUNKS)
-            .evictionListener(Chunk::evictionListener)
+            .removalListener(Chunk::removalListener)
             .buildAsync(pos -> new Chunk(this, pos));
     private final SpriteBatch batch;
     private final SpriteBatch entityBatch;
@@ -394,5 +414,10 @@ public class World implements SimpleRenderable {
         c.thenAccept(chunk -> chunk.recalculateLightingC(false,cls));
     }
 
-
+    public void dispose() {
+        player.save();
+        chunkCache.synchronous().invalidateAll();
+        chunkCache.synchronous().cleanUp();
+        System.out.println("Cleaned up cache");
+    }
 }

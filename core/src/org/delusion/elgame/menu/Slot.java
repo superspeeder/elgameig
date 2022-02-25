@@ -24,9 +24,9 @@ public class Slot {
 
     public static void load() {
         slotAtlas = new TextureAtlas(Gdx.files.internal("textures/ui/slotAtlas.atlas"));
-        slotAtlas.getRegions().forEach((atlasRegion -> {
-            System.out.println(atlasRegion.name + " " + atlasRegion.index);
-        }));
+//        slotAtlas.getRegions().forEach((atlasRegion -> {
+//            System.out.println(atlasRegion.name + " " + atlasRegion.index);
+//        }));
     }
 
     public static TextureAtlas getSlotAtlas() {

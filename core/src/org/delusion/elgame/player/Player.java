@@ -12,6 +12,8 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.Gson;
+import org.delusion.elgame.data.DataManager;
 import org.delusion.elgame.inventory.PlayerInventory;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.item.ItemUsageAction;
@@ -21,6 +23,10 @@ import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 import org.delusion.elgame.world.World;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Player implements SimpleRenderable {
 
@@ -40,11 +46,13 @@ public class Player implements SimpleRenderable {
     private float zoom = 0.7f;
     private Rectangle intersection_blank = new Rectangle();
     private Vector2i lastChunk;
+    private double spawnincooldown = 0;
+    private static double SPAWNINCOOLDOWN = 0.15f;
 
     public Player(World world) {
         hotbar = new Hotbar(world.getGame().getUIBatch(), this);
         this.world = world;
-        position = new Vector2(0,64);
+        position = new Vector2(0,0);
         velocity = new Vector2(0,0);
         acceleration = new Vector2(0,0);
         camera = new OrthographicCamera(1920, 1080);
@@ -56,6 +64,8 @@ public class Player implements SimpleRenderable {
         inventory = new PlayerInventory(world.getGame().getUIBatch(), this);
 
         lastChunk = Vector2i.worldToChunk(position);
+
+        load();
     }
 
     public Player setPosition(Vector2 position) {
@@ -103,7 +113,14 @@ public class Player implements SimpleRenderable {
         return camera;
     }
 
+    public void beginSpawnin() {
+        spawnincooldown = SPAWNINCOOLDOWN;
+    }
+
     public void update(float dt) {
+        if (spawnincooldown > 0.f) {
+            return;
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.NUMPAD_ADD)) {
             zoomIn();
         }
@@ -113,6 +130,10 @@ public class Player implements SimpleRenderable {
 
 
         camera.zoom = zoom;
+
+        if (!world.chunkIsAvaiable(Vector2i.worldToChunk(position))) {
+            return;
+        }
 
         grounded = false;
         velocity.x = 0;
@@ -243,7 +264,6 @@ public class Player implements SimpleRenderable {
 
             if (collided) {
                 position.y = nearest - bbox.getHeight();
-//                velocity.y = -velocity.y * 0.667f;
                 velocity.y = 0.0f;
             }
 
@@ -359,5 +379,69 @@ public class Player implements SimpleRenderable {
 
     public float distanceToTileCenter(Vector2i tilePos) {
         return new Vector2(tilePos.x * World.TILE_SIZE + (World.TILE_SIZE / 2.f), tilePos.y * World.TILE_SIZE + (World.TILE_SIZE / 2.f)).sub(new Vector2(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f)).len() / (float)World.TILE_SIZE;
+    }
+
+    public void reset() {
+        inventory.reset();
+        hotbar.reset();
+        setPosition(new Vector2(0, 0));
+        setVelocity(new Vector2(0, 0));
+        setAcceleration(new Vector2(0, 0));
+    }
+
+    public void save() {
+        String s = world.getGame().gson.toJson(generateState());
+        DataManager.writeTextData("playerdata.json",s);
+    }
+
+    private PlayerState generateState() {
+        PlayerState state = new PlayerState();
+        state.acceleration = acceleration;
+        state.velocity = velocity;
+        state.position = position;
+
+        for (int i = 0; i < hotbar.getSlots().length; i++) {
+            state.hotbar.put(i, hotbar.getSlots()[i].getStack());
+        }
+
+        for (int i = 0; i < inventory.getSlots().length; i++) {
+            state.inventory.put(i, inventory.getSlots()[i].getStack());
+        }
+        state.selectedHotbarSlot = hotbar.getSelected().getId();
+        return state;
+    }
+
+    public void load() {
+        try (FileReader reader = DataManager.fileReader("playerdata.json")){
+            if (reader == null) { save(); return; }
+            PlayerState pstate = world.getGame().gson.fromJson(reader, PlayerState.class);
+            position = pstate.position;
+            velocity = pstate.velocity;
+            acceleration = pstate.acceleration;
+            hotbar.select(pstate.selectedHotbarSlot);
+            pstate.hotbar.forEach((i, stack) -> {
+                hotbar.getSlots()[i].setStack(stack);
+            });
+            pstate.inventory.forEach((i, stack) -> {
+                inventory.getSlots()[i].setStack(stack);
+            });
+
+            camera.position.set(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f, camera.position.z);
+            camera.update();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public double getSpawninCooldownPercent() {
+        return spawnincooldown / SPAWNINCOOLDOWN;
+    }
+
+    public void updateC(float delta) {
+        if (spawnincooldown > 0.f) {
+            spawnincooldown -= delta;
+        } else if (spawnincooldown < 0.f) {
+            spawnincooldown = 0.0f;
+        }
     }
 }
