@@ -13,6 +13,7 @@ import org.delusion.elgame.player.Player;
 import org.delusion.elgame.screens.InventoryScreen;
 import org.delusion.elgame.screens.MainGameScreen;
 import org.delusion.elgame.screens.MainMenuScreen;
+import org.delusion.elgame.screens.SettingsScreen;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.world.World;
 
@@ -28,6 +29,7 @@ public class ElGame extends Game {
 	private World world;
 	private MainMenuScreen mainMenuScreen;
 	private InventoryScreen inventoryScreen;
+	private SettingsScreen settingsScreen;
 	private SpriteBatch uibatch;
 
 	private FrameBuffer screenFramebuffer;
@@ -53,6 +55,7 @@ public class ElGame extends Game {
 		mainGameScreen = new MainGameScreen(this);
 		mainMenuScreen = new MainMenuScreen(this);
 		inventoryScreen = new InventoryScreen(this);
+		settingsScreen = new SettingsScreen(this);
 
 		setScreen(mainMenuScreen);
 	}
@@ -87,6 +90,10 @@ public class ElGame extends Game {
 
 	public MainMenuScreen getMainMenuScreen() {
 		return mainMenuScreen;
+	}
+
+	public SettingsScreen getSettingsScreen() {
+		return settingsScreen;
 	}
 
 	public SpriteBatch getUIBatch() {
