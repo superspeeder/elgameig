@@ -12,8 +12,9 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.google.gson.Gson;
 import org.delusion.elgame.data.DataManager;
+import org.delusion.elgame.entity.data.PlayerData;
+import org.delusion.elgame.entity.stats.PlayerStats;
 import org.delusion.elgame.inventory.PlayerInventory;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.item.ItemUsageAction;
@@ -24,14 +25,23 @@ import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 import org.delusion.elgame.world.World;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class Player implements SimpleRenderable {
 
+    private static final PlayerStats STATS = new PlayerStats();
+    static {
+        STATS.movementSpeed = 450;
+        STATS.maxVelocity = 550;
+        STATS.spawnInCooldownTime = 0.15f;
+        STATS.gravityAccel = 1100;
+        STATS.jumpVel = 500;
+    }
+
     private static final float SPEED = 450;
     private static final float MAX_VELOCITY = 550;
+    private static double SPAWNINCOOLDOWN = 1.15f;
     private OrthographicCamera camera;
     private Vector2 position, velocity, acceleration;
     private Sprite internalSprite;
@@ -47,7 +57,9 @@ public class Player implements SimpleRenderable {
     private Rectangle intersection_blank = new Rectangle();
     private Vector2i lastChunk;
     private double spawnincooldown = 0;
-    private static double SPAWNINCOOLDOWN = 0.15f;
+    private PlayerData data = new PlayerData();
+
+    private PlayerData stats;
 
     public Player(World world) {
         hotbar = new Hotbar(world.getGame().getUIBatch(), this);
@@ -114,7 +126,7 @@ public class Player implements SimpleRenderable {
     }
 
     public void beginSpawnin() {
-        spawnincooldown = SPAWNINCOOLDOWN;
+        spawnincooldown = STATS.spawnInCooldownTime;
     }
 
     public void update(float dt) {
@@ -138,21 +150,21 @@ public class Player implements SimpleRenderable {
         grounded = false;
         velocity.x = 0;
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            velocity.x = -SPEED;
+            velocity.x = -STATS.movementSpeed;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            velocity.x = SPEED;
+            velocity.x = STATS.movementSpeed;
         }
 
-        velocity.x = Math.min(Math.max(velocity.x, -MAX_VELOCITY), MAX_VELOCITY);
+        velocity.x = Math.min(Math.max(velocity.x, -STATS.maxVelocity), STATS.maxVelocity);
 
         position.x += velocity.x * dt;
         internalSprite.setPosition(position.x,position.y);
 
         checkCollisionsX();
 
-        velocity.y -= 1100 * dt;
-        velocity.y = Math.min(Math.max(velocity.y, -MAX_VELOCITY), MAX_VELOCITY);
+        velocity.y -= STATS.gravityAccel * dt;
+        velocity.y = Math.min(Math.max(velocity.y, -STATS.maxVelocity), STATS.maxVelocity);
         position.y += velocity.y * dt;
         internalSprite.setPosition(position.x,position.y);
         checkCollisionsY();
@@ -160,7 +172,7 @@ public class Player implements SimpleRenderable {
         if (!grounded) framesSinceGrounded++;
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.W) && framesSinceGrounded < 10 && !jumpedSinceGrounded) {
-            velocity.y += 500;
+            velocity.y += STATS.jumpVel;
             jumpedSinceGrounded = true;
         }
 
@@ -408,6 +420,7 @@ public class Player implements SimpleRenderable {
             state.inventory.put(i, inventory.getSlots()[i].getStack());
         }
         state.selectedHotbarSlot = hotbar.getSelected().getId();
+        state.data = data;
         return state;
     }
 
@@ -428,13 +441,15 @@ public class Player implements SimpleRenderable {
 
             camera.position.set(position.x + internalSprite.getWidth() / 2.f, position.y + internalSprite.getHeight() / 2.f, camera.position.z);
             camera.update();
+
+            data = pstate.data;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public double getSpawninCooldownPercent() {
-        return spawnincooldown / SPAWNINCOOLDOWN;
+        return spawnincooldown / STATS.spawnInCooldownTime;
     }
 
     public void updateC(float delta) {

@@ -73,9 +73,7 @@ public class MainGameScreen extends ScreenAdapter {
 
             uishapes.setColor(1.f, 1.f, 1.f, 1.f);
 
-
             uishapes.end();
-
 
             game.getPlayer().load();
             return;
@@ -149,15 +147,4 @@ public class MainGameScreen extends ScreenAdapter {
         }
 
     }
-
-//    public void onWorldLeftClickDrag(int x, int y) {
-//        Vector2i tp = game.getPlayer().tileFromScreenPos(x,y);
-//        game.getPlayer().normalInteractingDrag(tp);
-//    }
-//
-//    public void onWorldRightClickDrag(int x, int y) {
-//        Vector2i tp = game.getPlayer().tileFromScreenPos(x,y);
-//        game.getPlayer().secondaryInteractingDrag(tp);
-//    }
-
 }
