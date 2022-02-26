@@ -1,6 +1,7 @@
 package org.delusion.elgame.player;
 
 import com.badlogic.gdx.math.Vector2;
+import org.delusion.elgame.entity.data.PlayerData;
 import org.delusion.elgame.inventory.Stack;
 
 import java.io.Serializable;
@@ -14,4 +15,5 @@ public class PlayerState implements Serializable {
     public Map<Integer, Stack> inventory = new HashMap<>();
     public Map<Integer, Stack> hotbar = new HashMap<>();
     public int selectedHotbarSlot = 0;
+    public PlayerData data;
 }

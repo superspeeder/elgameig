@@ -9,7 +9,7 @@ public class GameDatabase {
     private Connection conn;
 
     public GameDatabase() {
-        String path = "jdbc:sqlite:saveData.db";
+        String path = "jdbc:sqlite:" + DataManager.ROOT_STORAGE_PATH.resolve("saveData.db").toString();
 
         try {
             conn = DriverManager.getConnection(path);
