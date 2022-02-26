@@ -43,6 +43,11 @@ public class Hotbar implements IInventory, SimpleRenderable {
 
         select(0);
 
+        setupHotbar();
+
+    }
+
+    private void setupHotbar() {
         slots[0].setStack(new Stack(Items.Pickaxe, 1));
         slots[1].setStack(new Stack(Items.Spade, 1));
         slots[2].setStack(new Stack(Items.SuperPickaxe, 1));
@@ -127,5 +132,9 @@ public class Hotbar implements IInventory, SimpleRenderable {
 
     public Slot getSelected() {
         return curselected;
+    }
+
+    public void reset() {
+        setupHotbar();
     }
 }

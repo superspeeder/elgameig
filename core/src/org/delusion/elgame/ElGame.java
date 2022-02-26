@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.delusion.elgame.item.Item;
 import org.delusion.elgame.inventory.Stack;
 import org.delusion.elgame.menu.Slot;
@@ -24,6 +26,7 @@ import org.delusion.elgame.world.World;
 
 public class ElGame extends Game {
 
+	public static ElGame INSTANCE;
 	private MainGameScreen mainGameScreen;
 	private Player player;
 	private World world;
@@ -34,7 +37,16 @@ public class ElGame extends Game {
 
 	private FrameBuffer screenFramebuffer;
 	private SpriteBatch screenBatch;
-	private Settings settings = new Settings();
+	private Settings settings;
+
+	public Gson gson;
+
+	public ElGame() {
+		INSTANCE = this;
+		gson = new GsonBuilder()
+				.registerTypeAdapter(Item.class, new Item.TypeAdapter()).create();
+		settings = Settings.load();
+	}
 
 	@Override
 	public void create () {
@@ -57,6 +69,8 @@ public class ElGame extends Game {
 		inventoryScreen = new InventoryScreen(this);
 		settingsScreen = new SettingsScreen(this);
 
+
+
 		setScreen(mainMenuScreen);
 	}
 
@@ -74,6 +88,8 @@ public class ElGame extends Game {
 	@Override
 	public void dispose() {
 		mainGameScreen.dispose();
+		world.dispose();
+		settings.save();
 	}
 
 	public MainGameScreen getMainGameScreen() {

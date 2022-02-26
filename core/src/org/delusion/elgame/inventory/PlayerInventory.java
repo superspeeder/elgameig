@@ -76,4 +76,14 @@ public class PlayerInventory implements IInventory, SimpleRenderable {
         }
         return false;
     }
+
+    public void reset() {
+        for (Slot s : slots) {
+            s.setStack(new Stack());
+        }
+
+        slots[13].setStack(new Stack(Items.Stone, 123));
+        slots[16].setStack(new Stack(Items.Dirt, 200));
+        slots[15].setStack(new Stack(Items.Dirt, 123));
+    }
 }

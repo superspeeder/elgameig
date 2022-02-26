@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
@@ -92,10 +93,16 @@ public class SettingsScreen extends ScreenAdapter {
     public SettingsScreen(ElGame game) {
         this.game = game;
         stage = new Stage();
+
+        Image bg = new Image(new Texture("textures/backgrounds/menu.png"));
+        bg.setPosition(0, 0);
+        bg.setSize(stage.getWidth(), stage.getHeight());
+        bg.setColor(MainMenuScreen.BGTINT);
+        stage.addActor(bg);
+
         fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto/Roboto-Regular.ttf"));
 
         group = new Container<>(new VerticalGroup());
-//        group.debug();
         group.getActor().center().bottom();
         group.getActor().fill();
         group.maxWidth(stage.getWidth() * 0.6666666666666667f);
@@ -109,10 +116,10 @@ public class SettingsScreen extends ScreenAdapter {
         advancedLightingToggle = new SettingsScreen.SettingsCheckBox("Advanced Lighting", new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.getSettings().setAdvancedLighting(((CheckBox)actor).isChecked());
+                game.getSettings().advancedLightCascade = ((CheckBox)actor).isChecked();
             }
         });
-        game.getSettings().setAdvancedLighting(advancedLightingToggle.getActor().isChecked());
+        advancedLightingToggle.getActor().setChecked(game.getSettings().advancedLightCascade);
 
 
         returnButton = new MainMenuScreen.MainMenuButton("Return", new ChangeListener() {

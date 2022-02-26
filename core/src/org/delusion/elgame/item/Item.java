@@ -3,17 +3,24 @@ package org.delusion.elgame.item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.google.gson.*;
 import org.delusion.elgame.item.tool.ToolType;
 import org.delusion.elgame.tile.TileType;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class Item {
     private static Map<Item, TextureRegion> textures = new HashMap<>();
+    private static Map<String, Item> itemMap = new HashMap<>();
     private static Set<Item> items = new HashSet<>();
 
     private static TextureAtlas atlas;
     private static boolean loaded = false;
+
+    public static Item getByName(String name) {
+        return itemMap.getOrDefault(name, null);
+    }
 
 
     public static void load() {
@@ -26,7 +33,7 @@ public class Item {
     }
 
     public final String name;
-    private Properties properties;
+    private transient Properties properties;
 
     public Item(String name, Properties properties) {
         this.name = name;
@@ -36,6 +43,8 @@ public class Item {
         if (loaded) {
             textures.put(this, atlas.findRegion(name));
         }
+
+        itemMap.put(name, this);
     }
 
     public TextureRegion getTex() {
@@ -181,6 +190,18 @@ public class Item {
         public Builder placeResultBackground(TileType ttype) {
             secondaryDragged(ItemUsageAction.placeTile(ttype)).secondary(ItemUsageAction.placeTile(ttype));
             return this;
+        }
+    }
+
+    public static class TypeAdapter implements JsonSerializer<Item>, JsonDeserializer<Item> {
+        @Override
+        public JsonElement serialize(Item src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.name);
+        }
+
+        @Override
+        public Item deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            return Item.getByName(json.getAsString());
         }
     }
 }
