@@ -21,6 +21,7 @@ public class MainMenuScreen extends ScreenAdapter {
     private final ElGame game;
     private MainMenuButton playGameButton;
     private MainMenuButton exitButton;
+    private MainMenuButton settingsButton;
     private Container<VerticalGroup> group;
     private FreeTypeFontGenerator fontGen;
     private Stage stage;
@@ -104,9 +105,17 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         });
 
+        settingsButton = new MainMenuButton("Settings", new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.setScreen(game.getSettingsScreen());
+            }
+        });
+
 
         group.getActor().addActor(playGameButton);
         group.getActor().addActor(exitButton);
+        group.getActor().addActor(settingsButton);
 
         group.setFillParent(true);
         group.center().align(Align.center).pad(24);
