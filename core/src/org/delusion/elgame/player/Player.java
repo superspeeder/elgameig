@@ -39,40 +39,47 @@ public class Player implements SimpleRenderable {
         STATS.jumpVel = 500;
     }
 
-    private static final float SPEED = 450;
-    private static final float MAX_VELOCITY = 550;
-    private static double SPAWNINCOOLDOWN = 1.15f;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
+    private float zoom = 0.7f;
+
+    private double spawnincooldown = 0;
+
+    private final World world;
+
     private Vector2 position, velocity, acceleration;
-    private Sprite internalSprite;
-    private World world;
+    private Vector2i lastChunk;
+
     private boolean grounded = false;
     private int framesSinceGrounded = 100000;
     private boolean jumpedSinceGrounded = false;
+
+    private final Sprite internalSprite;
+    private final Texture box = new Texture(Gdx.files.internal("textures/selection_box.png"));
+
+    private final Rectangle intersection_blank = new Rectangle();
+
     private final Hotbar hotbar;
     private final PlayerInventory inventory;
-    private Texture box = new Texture(Gdx.files.internal("textures/selection_box.png"));
-    private Texture boxg = new Texture(Gdx.files.internal("textures/selection_boxg.png"));
-    private float zoom = 0.7f;
-    private Rectangle intersection_blank = new Rectangle();
-    private Vector2i lastChunk;
-    private double spawnincooldown = 0;
+
     private PlayerData data = new PlayerData();
 
-    private PlayerData stats;
-
     public Player(World world) {
-        hotbar = new Hotbar(world.getGame().getUIBatch(), this);
-        this.world = world;
+
         position = new Vector2(0,0);
         velocity = new Vector2(0,0);
         acceleration = new Vector2(0,0);
+
         camera = new OrthographicCamera(1920, 1080);
         camera.setToOrtho(false);
+
+        this.world = world;
         world.linkToPlayer(this); // dual dependency handshake
+
         internalSprite = new Sprite(new Texture(Gdx.files.internal("textures/player.png")));
         internalSprite.setSize(16, 24);
         internalSprite.setOrigin(0,0);
+
+        hotbar = new Hotbar(world.getGame().getUIBatch(), this);
         inventory = new PlayerInventory(world.getGame().getUIBatch(), this);
 
         lastChunk = Vector2i.worldToChunk(position);
