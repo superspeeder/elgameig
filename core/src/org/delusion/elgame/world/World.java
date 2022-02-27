@@ -2,6 +2,7 @@ package org.delusion.elgame.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.apache.commons.lang3.tuple.Pair;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.tile.TileMetadata;
@@ -18,6 +20,7 @@ import org.delusion.elgame.utils.AABBi;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 public class World implements SimpleRenderable, Disposable {
 
+    private ParallaxBackdrop backdrop;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void reloadAll() {
@@ -59,12 +63,20 @@ public class World implements SimpleRenderable, Disposable {
             .buildAsync(pos -> new Chunk(this, pos));
     private final SpriteBatch batch;
     private final SpriteBatch entityBatch;
+
     private Player player;
 
     public World(ElGame game) {
         this.game = game;
+
         batch = new SpriteBatch();
         entityBatch = new SpriteBatch();
+
+        Texture tex1 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd1.png"));
+        Texture tex2 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd2.png"));
+        tex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        tex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        backdrop = new ParallaxBackdrop(List.of(Pair.of(tex1, 1),Pair.of(tex2, 3)));
     }
 
     public static Vector2i toTilePos(Vector2 translated) {
@@ -131,6 +143,7 @@ public class World implements SimpleRenderable, Disposable {
         if (viewableArea.top / (float)Chunk.SIZE > topC) topC += 1;
 
         batch.begin();
+        renderBackdrop();
 
         for (int cx = leftC ; cx <= rightC ; cx++) {
             for (int cy = bottomC ; cy <= topC ; cy++) {
@@ -156,6 +169,10 @@ public class World implements SimpleRenderable, Disposable {
         shapeRenderer.end();
 
         renderEntities();
+    }
+
+    private void renderBackdrop() {
+        backdrop.render(batch, game);
     }
 
     private void renderChunkBorders(int cx, int cy) {
