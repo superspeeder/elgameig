@@ -28,7 +28,8 @@ import java.util.concurrent.ExecutionException;
 
 public class World implements SimpleRenderable, Disposable {
 
-    private ParallaxBackdrop backdrop;
+    private ParallaxBackdrop forestBackdrop;
+    private ParallaxBackdrop caveBackdrop;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void reloadAll() {
@@ -72,11 +73,17 @@ public class World implements SimpleRenderable, Disposable {
         batch = new SpriteBatch();
         entityBatch = new SpriteBatch();
 
-        Texture tex1 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd1.png"));
-        Texture tex2 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd2.png"));
-        tex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
-        tex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
-        backdrop = new ParallaxBackdrop(List.of(Pair.of(tex1, 1),Pair.of(tex2, 3)));
+        Texture forestTex1 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd1.png"));
+        Texture forestTex2 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd2.png"));
+        Texture forestTex3 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd3.png"));
+        Texture caveTex1 = new Texture(Gdx.files.internal("textures/backgrounds/cave_bd1.png"));
+        Texture caveTex2 = new Texture(Gdx.files.internal("textures/backgrounds/cave_bd2.png"));
+        forestTex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        forestTex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        caveTex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        //caveTex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        forestBackdrop = new ParallaxBackdrop(List.of(Pair.of(forestTex1, 12),Pair.of(forestTex2, 34),Pair.of(forestTex3, 100)));
+        caveBackdrop = new ParallaxBackdrop(List.of(Pair.of(caveTex1, 10),Pair.of(caveTex2, 100)));
     }
 
     public static Vector2i toTilePos(Vector2 translated) {
@@ -172,7 +179,11 @@ public class World implements SimpleRenderable, Disposable {
     }
 
     private void renderBackdrop() {
-        backdrop.render(batch, game);
+        if (game.getPlayer().getPosition().y > -10 * TILE_SIZE) {
+            forestBackdrop.render(batch, game);
+        } else {
+            caveBackdrop.render(batch, game);
+        }
     }
 
     private void renderChunkBorders(int cx, int cy) {

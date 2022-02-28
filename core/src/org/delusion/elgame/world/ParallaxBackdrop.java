@@ -33,10 +33,17 @@ public class ParallaxBackdrop {
         float posx = game.getPlayer().getPosition().x;
         float posy = game.getPlayer().getPosition().y;
         float zoom = game.getPlayer().getZoom();
-
-
-        float xwrap = (posx/width) / (1 + distance);
-
-        batch.draw(tex, cornerpos.x, cornerpos.y, width*zoom, height*zoom,1-xwrap, 1, 0-xwrap, 0);
+        float xwrap, ywrap;
+        if (Math.floorMod(distance, 10) == 0) {
+            ywrap = 0;
+        } else {
+            ywrap = (posy / height) / Math.floorMod(distance,10);
+        }
+        if (Math.floorDiv(distance, 10) == 0 || Math.floorDiv(distance, 10) == 10) {
+            xwrap = 0;
+        } else {
+            xwrap = (posx / width) / Math.floorDiv(distance, 10);
+        }
+        batch.draw(tex, cornerpos.x, cornerpos.y, width*zoom, height*zoom,xwrap, 1-ywrap, 1+xwrap, 0-ywrap);
     }
 }

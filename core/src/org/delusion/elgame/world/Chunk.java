@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Disposable;
 import com.brashmonkey.spriter.Data;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import noise.OpenSimplexNoise;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.delusion.elgame.data.DataManager;
 import org.delusion.elgame.tile.TileMetadata;
@@ -40,6 +41,8 @@ public class Chunk implements Disposable {
     private boolean lightingMappedFirstTime = false;
     private boolean bordersMappedFirstTime = false;
 
+    private static OpenSimplexNoise NOISE = new OpenSimplexNoise();
+
     public Chunk(World world, Vector2i pos) {
         map = new TileType[SIZE][SIZE];
         backgroundTilemap = new TileType[SIZE][SIZE];
@@ -62,7 +65,13 @@ public class Chunk implements Disposable {
                 metadataMap[localX][localY] = new TileMetadata();
                 metadataMap[localX][localY].lightValue = 0.0f;
 
-                if (y < h - 20) {
+
+                double v = 1;
+                if (world.getGame().getSettings().experimentalCaveGen) v = Math.abs(NOISE.eval(x / 30.0f, y / 30.0f));
+
+                if (y < -80) {
+                    setBg(localX, localY, TileTypes.Air);
+                } else if (y < h - 20) {
                     setBg(localX, localY, TileTypes.Stone);
                 } else if (y < h - 1) {
                     setBg(localX, localY, TileTypes.Dirt);
@@ -72,7 +81,10 @@ public class Chunk implements Disposable {
                     setBg(localX, localY, TileTypes.Air);
                 }
 
-                if (x > 50 && x < 54) {
+
+                if (world.getGame().getSettings().experimentalCaveGen && v > 0.5) {
+                    set(localX, localY, TileTypes.Air);
+                } else if (x > 50 && x < 54) {
                     set(localX, localY, TileTypes.Air);
                 } else if (y < h - 20) {
                     set(localX, localY, TileTypes.Stone);

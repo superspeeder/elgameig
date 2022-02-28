@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class Settings {
     public boolean advancedLightCascade = true;
+    public boolean experimentalCaveGen = false;
 
     public void save() {
         DataManager.writeTextData("settings.json", ElGame.INSTANCE.gson.toJson(this));
