@@ -21,6 +21,12 @@ public class DataManager {
 
     public static void destroySaveData() {
         canSave = false;
+
+        File ps = ROOT_STORAGE_PATH.resolve("playerdata.json").toFile();
+        if (ps.exists()) {
+            ps.delete();
+        }
+
         File[] fs = ROOT_STORAGE_PATH.resolve("chunks/").toFile().listFiles();
         for (File file : Objects.requireNonNull(fs)) {
             System.out.println("Deleting Chunk " + file.getName());

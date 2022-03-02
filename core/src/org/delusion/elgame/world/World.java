@@ -2,6 +2,7 @@ package org.delusion.elgame.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.apache.commons.lang3.tuple.Pair;
 import org.delusion.elgame.ElGame;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.tile.TileMetadata;
@@ -18,6 +20,7 @@ import org.delusion.elgame.utils.AABBi;
 import org.delusion.elgame.utils.SimpleRenderable;
 import org.delusion.elgame.utils.Vector2i;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +28,8 @@ import java.util.concurrent.ExecutionException;
 
 public class World implements SimpleRenderable, Disposable {
 
+    private ParallaxBackdrop forestBackdrop;
+    private ParallaxBackdrop caveBackdrop;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public void reloadAll() {
@@ -59,12 +64,26 @@ public class World implements SimpleRenderable, Disposable {
             .buildAsync(pos -> new Chunk(this, pos));
     private final SpriteBatch batch;
     private final SpriteBatch entityBatch;
+
     private Player player;
 
     public World(ElGame game) {
         this.game = game;
+
         batch = new SpriteBatch();
         entityBatch = new SpriteBatch();
+
+        Texture forestTex1 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd1.png"));
+        Texture forestTex2 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd2.png"));
+        Texture forestTex3 = new Texture(Gdx.files.internal("textures/backgrounds/forest_bd3.png"));
+        Texture caveTex1 = new Texture(Gdx.files.internal("textures/backgrounds/cave_bd1.png"));
+        Texture caveTex2 = new Texture(Gdx.files.internal("textures/backgrounds/cave_bd2.png"));
+        forestTex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        forestTex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        caveTex1.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        //caveTex2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.ClampToEdge);
+        forestBackdrop = new ParallaxBackdrop(List.of(Pair.of(forestTex1, 12),Pair.of(forestTex2, 34),Pair.of(forestTex3, 100)));
+        caveBackdrop = new ParallaxBackdrop(List.of(Pair.of(caveTex1, 10),Pair.of(caveTex2, 100)));
     }
 
     public static Vector2i toTilePos(Vector2 translated) {
@@ -131,6 +150,7 @@ public class World implements SimpleRenderable, Disposable {
         if (viewableArea.top / (float)Chunk.SIZE > topC) topC += 1;
 
         batch.begin();
+        renderBackdrop();
 
         for (int cx = leftC ; cx <= rightC ; cx++) {
             for (int cy = bottomC ; cy <= topC ; cy++) {
@@ -156,6 +176,14 @@ public class World implements SimpleRenderable, Disposable {
         shapeRenderer.end();
 
         renderEntities();
+    }
+
+    private void renderBackdrop() {
+        if (game.getPlayer().getPosition().y > -10 * TILE_SIZE) {
+            forestBackdrop.render(batch, game);
+        } else {
+            caveBackdrop.render(batch, game);
+        }
     }
 
     private void renderChunkBorders(int cx, int cy) {

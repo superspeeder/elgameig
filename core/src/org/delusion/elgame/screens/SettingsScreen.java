@@ -23,6 +23,7 @@ import org.delusion.elgame.ElGame;
 
 public class SettingsScreen extends ScreenAdapter {
     private final ElGame game;
+    private final SettingsCheckBox experimentalCaveGenToggle;
     private FreeTypeFontGenerator fontGen;
     private Container<VerticalGroup> group;
     private Stage stage;
@@ -121,6 +122,14 @@ public class SettingsScreen extends ScreenAdapter {
         });
         advancedLightingToggle.getActor().setChecked(game.getSettings().advancedLightCascade);
 
+        experimentalCaveGenToggle = new SettingsScreen.SettingsCheckBox("Experimental Cave Generation", new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.getSettings().experimentalCaveGen = ((CheckBox)actor).isChecked();
+            }
+        });
+        experimentalCaveGenToggle.getActor().setChecked(game.getSettings().experimentalCaveGen);
+
 
         returnButton = new MainMenuScreen.MainMenuButton("Return", new ChangeListener() {
             @Override
@@ -130,6 +139,7 @@ public class SettingsScreen extends ScreenAdapter {
         });
 
         group.getActor().addActor(advancedLightingToggle);
+        group.getActor().addActor(experimentalCaveGenToggle);
         group.getActor().addActor(returnButton);
 
         group.setFillParent(true);
