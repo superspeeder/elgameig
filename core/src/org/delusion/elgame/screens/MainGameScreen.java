@@ -147,4 +147,8 @@ public class MainGameScreen extends ScreenAdapter {
         }
 
     }
+
+    public void onMouseMove(int screenX, int screenY) {
+        game.getWorld().updateHoveredTile(game.getPlayer().tileFromScreenPos(screenX, screenY));
+    }
 }

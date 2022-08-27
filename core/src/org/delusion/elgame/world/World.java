@@ -12,6 +12,8 @@ import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.commons.lang3.tuple.Pair;
 import org.delusion.elgame.ElGame;
+import org.delusion.elgame.inventory.Stack;
+import org.delusion.elgame.item.Item;
 import org.delusion.elgame.player.Player;
 import org.delusion.elgame.tile.TileMetadata;
 import org.delusion.elgame.tile.TileType;
@@ -22,6 +24,7 @@ import org.delusion.elgame.utils.Vector2i;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +34,9 @@ public class World implements SimpleRenderable, Disposable {
     private ParallaxBackdrop forestBackdrop;
     private ParallaxBackdrop caveBackdrop;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private Vector2i hoveredTile = null;
+
+    private Texture selectBox = new Texture(Gdx.files.internal("textures/selection_box.png"));
 
     public void reloadAll() {
         Set<Vector2i> ks = chunkCache.synchronous().asMap().keySet();
@@ -48,6 +54,51 @@ public class World implements SimpleRenderable, Disposable {
 
     public boolean chunkIsAvaiable(Vector2i cpos) {
         return chunkCache.getIfPresent(cpos) != null;
+    }
+
+    public void damageTileWith(Vector2i tilePos, Stack stack, Layer layer) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(tilePos.x, Chunk.SIZE), Math.floorDiv(tilePos.y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(tilePos.x, Chunk.SIZE), Math.floorMod(tilePos.y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+
+        Item item = stack.getItem();
+        Optional.ofNullable(chunkCache.getIfPresent(chunkPos)).ifPresent(it -> it.thenAccept(c -> {
+            c.damageTile(localPos, item.toolSpeed(), item, layer);
+        }));
+
+
+    }
+
+    public float getTileDamage(Vector2i tilePos, Layer layer) {
+        Vector2i chunkPos = new Vector2i(Math.floorDiv(tilePos.x, Chunk.SIZE), Math.floorDiv(tilePos.y, Chunk.SIZE));
+        Vector2i localPos = new Vector2i(Math.floorMod(tilePos.x, Chunk.SIZE), Math.floorMod(tilePos.y, Chunk.SIZE));
+
+        if (localPos.x < 0) {
+            localPos.x = Chunk.SIZE - localPos.x;
+        }
+
+        if (localPos.y < 0) {
+            localPos.y = Chunk.SIZE - localPos.y;
+        }
+        CompletableFuture<Chunk> cc = chunkCache.getIfPresent(chunkPos);
+        if (cc != null) {
+            Chunk c = cc.getNow(null);
+            if (c != null) {
+                return c.getDamage(localPos, layer);
+            }
+        }
+        return 0.0f;
+    }
+
+    public void updateHoveredTile(Vector2i newHoveredTilePos) {
+        hoveredTile = newHoveredTilePos;
     }
 
     public enum Layer {
@@ -159,7 +210,13 @@ public class World implements SimpleRenderable, Disposable {
         }
 
         Vector2i tp = player.tileFromScreenPos(Gdx.input.getX(), Gdx.input.getY());
-        batch.draw(player.getSelectionBox(), tp.x * World.TILE_SIZE, tp.y * World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
+        if (player.canReach(tp)) {
+            TileType tt = getTileIfAvailable(tp);
+            TileType tt2 = getTileBgIfAvailable(tp);
+            if ((tt != null && tt != TileTypes.Air) || (tt2 != null && tt2 != TileTypes.Air)) {
+                batch.draw(player.getSelectionBox(), tp.x * World.TILE_SIZE, tp.y * World.TILE_SIZE, World.TILE_SIZE, World.TILE_SIZE);
+            }
+        }
 
         batch.end();
 
@@ -175,7 +232,54 @@ public class World implements SimpleRenderable, Disposable {
 
         shapeRenderer.end();
 
+        batch.begin();
+        for (int cx = leftC ; cx <= rightC ; cx++) {
+            for (int cy = bottomC ; cy <= topC ; cy++) {
+                renderChunkOverlayTex(cx, cy);
+            }
+        }
+
+        renderTexOverlay();
+        batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (int cx = leftC ; cx <= rightC ; cx++) {
+            for (int cy = bottomC ; cy <= topC ; cy++) {
+                renderChunkOverlayShape(cx, cy);
+            }
+        }
+
+        renderShapeOverlay();
+        shapeRenderer.end();
+
         renderEntities();
+    }
+
+    private void renderShapeOverlay() {
+
+    }
+
+    private void renderTexOverlay() {
+//        if (hoveredTile != null) {
+//            TileType tt = getTileIfAvailable(hoveredTile);
+//            if (tt != null && tt != TileTypes.Air) {
+//                batch.draw(selectBox, hoveredTile.x * TILE_SIZE, hoveredTile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+//            }
+//        }
+    }
+
+    private void renderChunkOverlayShape(int cx, int cy) {
+        Chunk nc = chunkCache.get(new Vector2i(cx, cy)).getNow(null);
+        if (nc != null) {
+            nc.renderShapeOverlayTo(shapeRenderer);
+        }
+    }
+
+    private void renderChunkOverlayTex(int cx, int cy) {
+        Chunk nc = chunkCache.get(new Vector2i(cx, cy)).getNow(null);
+        if (nc != null) {
+            nc.renderTexOverlayTo(batch);
+        }
     }
 
     private void renderBackdrop() {

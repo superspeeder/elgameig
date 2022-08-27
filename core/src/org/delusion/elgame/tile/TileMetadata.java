@@ -7,8 +7,5 @@ public class TileMetadata {
     public float lightValue;
 
     @Ephemeral
-    public float tileDamage;
-
-    @Ephemeral
     public byte border;
 }

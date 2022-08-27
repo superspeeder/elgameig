@@ -12,11 +12,13 @@ public class TileTypes {
     public static final TileType Dirt = new TileType(1, "Dirt", TileProperties.builder()
             .drops(TileDropsFunction.supplier(() -> new Stack(Items.Dirt)))
             .hardness(0.5f)
+            .breakingHealth(0.6f)
             .breakingTools(ToolType.Shovel, ToolType.Pickaxe).build(), "tile");
 
     public static final TileType StoneTile = new TileType(2, "Stone Tile", TileProperties.builder()
             .drops(TileDropsFunction.supplier(() -> new Stack(Items.Stone)))
             .hardness(2.0f)
+            .breakingHealth(1.3f)
             .breakingTools(ToolType.Pickaxe).build(), "tile");
 
     public static final TileType Stone = new TileType(3, "Stone", TileProperties.builder()

@@ -79,12 +79,23 @@ public class Item {
         return properties.toolStrength;
     }
 
+    public float toolSpeed() {
+        return properties.toolSpeed;
+    }
+
+    public boolean canBreak(TileType tileType) {
+        for (ToolType tt : tileType.getProperties().breakingTools) {
+            if (getToolTypes().contains(tt)) return true;
+        }
+        return false;
+    }
+
     public static class Properties {
         private Set<ToolType> toolTypes;
         private int maxStackSize;
         private ItemUsageAction primary = ItemUsageAction.none, secondary = ItemUsageAction.none;
         private ItemUsageAction primaryDragged = ItemUsageAction.none, secondaryDragged = ItemUsageAction.none;
-        private float toolStrength;
+        private float toolStrength, toolSpeed;
 
         public Properties maxStackSize(int maxStackSize) {
             this.maxStackSize = maxStackSize;
@@ -119,6 +130,10 @@ public class Item {
         public Properties toolStrength(float strength) {
             toolStrength = strength;
             return this;
+        }
+
+        public void toolSpeed(float toolSpeed) {
+            this.toolSpeed = toolSpeed;
         }
     }
 
@@ -170,8 +185,9 @@ public class Item {
             return this;
         }
 
-		public Builder miningTool(float strength) {
+		public Builder miningTool(float strength, float speed) {
             toolStrength(strength);
+            toolSpeed(speed);
             primary(ItemUsageAction.mineTile).primaryDragged(ItemUsageAction.mineTile);
             secondary(ItemUsageAction.mineTileBg).secondaryDragged(ItemUsageAction.mineTileBg);
 			return this;
@@ -179,6 +195,11 @@ public class Item {
 
         public Builder toolStrength(float strength) {
             properties.toolStrength(strength);
+            return this;
+        }
+
+        public Builder toolSpeed(float speed) {
+            properties.toolSpeed(speed);
             return this;
         }
 

@@ -54,13 +54,16 @@ public interface ItemUsageAction {
         if (player.distanceToTileCenter(tilePos) > REACH_MAX) return;
         TileType tt = world.getTile(tilePos).getNow(TileTypes.Air);
         if (tt != TileTypes.Air) {
+            world.damageTileWith(tilePos, stack, World.Layer.Main);
+            if (world.getTileDamage(tilePos, World.Layer.Main) >= tt.getProperties().breakingHealth) {
 
-            if (stack.getItem().getToolTypes().stream().anyMatch(tt.getProperties().breakingTools::contains) && stack.getItem().toolStrength() >= tt.getProperties().hardness) {
-                Stream<Stack> drops = tt.getDrop(player, world, tilePos, stack, World.Layer.Main);
-                if (drops != null) {
-                    drops.forEach(player::tryInsertStack);
+                if (stack.getItem().getToolTypes().stream().anyMatch(tt.getProperties().breakingTools::contains) && stack.getItem().toolStrength() >= tt.getProperties().hardness) {
+                    Stream<Stack> drops = tt.getDrop(player, world, tilePos, stack, World.Layer.Main);
+                    if (drops != null) {
+                        drops.forEach(player::tryInsertStack);
+                    }
+                    world.setTile(tilePos.x, tilePos.y, TileTypes.Air);
                 }
-                world.setTile(tilePos.x, tilePos.y, TileTypes.Air);
             }
         }
     };
@@ -69,13 +72,16 @@ public interface ItemUsageAction {
         if (player.distanceToTileCenter(tilePos) > REACH_MAX) return;
         TileType tt = world.getTileBg(tilePos).getNow(TileTypes.Air);
         if (tt != TileTypes.Air) {
+            world.damageTileWith(tilePos, stack, World.Layer.BG);
+            if (world.getTileDamage(tilePos, World.Layer.BG) >= tt.getProperties().breakingHealth) {
 
-            if (stack.getItem().getToolTypes().stream().anyMatch(tt.getProperties().breakingTools::contains) && stack.getItem().toolStrength() >= tt.getProperties().hardness) {
-                Stream<Stack> drops = tt.getDrop(player, world, tilePos, stack, World.Layer.BG);
-                if (drops != null) {
-                    drops.forEach(player::tryInsertStack);
+                if (stack.getItem().getToolTypes().stream().anyMatch(tt.getProperties().breakingTools::contains) && stack.getItem().toolStrength() >= tt.getProperties().hardness) {
+                    Stream<Stack> drops = tt.getDrop(player, world, tilePos, stack, World.Layer.BG);
+                    if (drops != null) {
+                        drops.forEach(player::tryInsertStack);
+                    }
+                    world.setTileBg(tilePos.x, tilePos.y, TileTypes.Air);
                 }
-                world.setTileBg(tilePos.x, tilePos.y, TileTypes.Air);
             }
         }
     };

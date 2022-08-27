@@ -466,4 +466,8 @@ public class Player implements SimpleRenderable {
             spawnincooldown = 0.0f;
         }
     }
+
+    public boolean canReach(Vector2i tp) {
+        return distanceToTileCenter(tp) <= ItemUsageAction.REACH_MAX;
+    }
 }

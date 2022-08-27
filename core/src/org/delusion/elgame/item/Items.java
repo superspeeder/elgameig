@@ -18,15 +18,15 @@ public class Items {
         .placeResult(TileTypes.Stone).build();
 
     public static final Item Pickaxe = Item.Builder
-        .create("pick", 1).miningTool(1.0f)
-        .toolTypes(ToolType.Pickaxe).build();
-    
+            .create("pick", 1).miningTool(1.0f, 0.005f)
+            .toolTypes(ToolType.Pickaxe).build();
+
     public static final Item SuperPickaxe = Item.Builder
-        .create("super-pick", 1).miningTool(9999.0f)
+        .create("super-pick", 1).miningTool(9999.0f, 0.03f)
         .toolTypes(ToolType.Pickaxe).build();
 
     public static final Item Spade = Item.Builder
-        .create("spade", 1).miningTool(1.0f)
+        .create("spade", 1).miningTool(1.0f, 0.01f)
         .toolTypes(ToolType.Shovel).build();
 
     public static final Item Torch = Item.Builder

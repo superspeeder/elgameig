@@ -6,14 +6,16 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.*;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Disposable;
-import com.brashmonkey.spriter.Data;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import noise.OpenSimplexNoise;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.delusion.elgame.data.DataManager;
+import org.delusion.elgame.item.Item;
 import org.delusion.elgame.tile.TileMetadata;
 import org.delusion.elgame.tile.TileType;
 import org.delusion.elgame.tile.TileTypes;
@@ -27,7 +29,7 @@ public class Chunk implements Disposable {
     private static final int BORDER_BIT_BOTTOM = 0b1000;
 
 
-    public static final int SIZE = 50;
+    public static final int SIZE = 16;
     public static final float LIGHT_AIRSTEP = 0.05f;
     public static final float LIGHT_SOLIDSTEP = 0.1f;
     private static final float BORDER_LINE_WIDTH = 1.0f;
@@ -38,6 +40,9 @@ public class Chunk implements Disposable {
     private TileType[][] map;
     private TileType[][] backgroundTilemap;
     private TileMetadata[][] metadataMap;
+    private float[][] breakProgressForeground;
+    private float[][] breakProgressBackground;
+
     private boolean lightingMappedFirstTime = false;
     private boolean bordersMappedFirstTime = false;
 
@@ -47,6 +52,8 @@ public class Chunk implements Disposable {
         map = new TileType[SIZE][SIZE];
         backgroundTilemap = new TileType[SIZE][SIZE];
         metadataMap = new TileMetadata[SIZE][SIZE];
+        breakProgressForeground = new float[SIZE][SIZE];
+        breakProgressBackground = new float[SIZE][SIZE];
 
         position = pos;
         this.world = world;
@@ -121,6 +128,7 @@ public class Chunk implements Disposable {
 
     public void setBg(int localX, int localY, TileType type) {
         backgroundTilemap[localX][localY] = type;
+        breakProgressBackground[localX][localY] = 0.0f;
     }
 
     public TileType getBg(int localX, int localY) {
@@ -129,6 +137,7 @@ public class Chunk implements Disposable {
 
     public void set(int localX, int localY, TileType ttype) {
         map[localX][localY] = ttype;
+        breakProgressForeground[localX][localY] = 0.0f;
     }
 
     public TileType get(int localX, int localY) {
@@ -531,5 +540,58 @@ public class Chunk implements Disposable {
             e.printStackTrace();
         }
         System.out.printf("Loaded chunk %d, %d\n", position.x, position.y);
+    }
+
+    public void damageTile(Vector2i pos, float toolSpeed, Item item, World.Layer layer) {
+        switch (layer) {
+            case Main -> {
+                if (!item.canBreak(get(pos))) return;
+                breakProgressForeground[pos.x][pos.y] += toolSpeed;
+            }
+            case BG -> {
+                if (!item.canBreak(getBg(pos))) return;
+                breakProgressBackground[pos.x][pos.y] += toolSpeed;
+            }
+        }
+    }
+
+    public float getDamage(Vector2i localPos, World.Layer layer) {
+        switch (layer) {
+            case Main -> {
+                return breakProgressForeground[localPos.x][localPos.y];
+            }
+            case BG -> {
+                return breakProgressBackground[localPos.x][localPos.y];
+            }
+        }
+        return 0.0f;
+    }
+
+    public void renderShapeOverlayTo(ShapeRenderer shapeRenderer) {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        for (int x = 0 ; x < SIZE ; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                TileType tt = map[x][y];
+                float maxB, b;
+                if (tt != null && tt != TileTypes.Air) {
+                    maxB = tt.getProperties().breakingHealth * 2.0f;
+                    b = breakProgressForeground[x][y];
+                    shapeRenderer.setColor(0.8f, 0.0f, 0.0f, b / maxB);
+                } else {
+                    tt = backgroundTilemap[x][y];
+                    if (tt != null && tt != TileTypes.Air) {
+                        maxB = tt.getProperties().breakingHealth * 2.0f;
+                        b = breakProgressBackground[x][y];
+                        shapeRenderer.setColor(0.6f, 0.0f, 0.0f, b / maxB);
+                    } else continue;
+                }
+                shapeRenderer.rect((x + position.x * SIZE) * World.TILE_SIZE + 2, (y + position.y * SIZE) * World.TILE_SIZE + 2, World.TILE_SIZE - 4, World.TILE_SIZE - 4);
+            }
+        }
+    }
+
+    public void renderTexOverlayTo(SpriteBatch batch) {
+
     }
 }

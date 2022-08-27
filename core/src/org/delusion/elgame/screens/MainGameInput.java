@@ -107,6 +107,11 @@ public class MainGameInput extends InputAdapter {
 //    }
 
 
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        mainGameScreen.onMouseMove(screenX, screenY);
+        return super.mouseMoved(screenX, screenY);
+    }
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
