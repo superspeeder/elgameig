@@ -530,6 +530,10 @@ public class Chunk implements Disposable {
             bb.rewind();
             for (int x = 0 ; x < SIZE ; x++) {
                 for (int y = 0 ; y < SIZE ; y++) {
+                    if (bb.remaining() < 8) {
+                        System.err.println("Warning: Broken chunk data file, not finishing load");
+                        return;
+                    }
                     map[x][y] = TileType.fromId(bb.getInt());
                     backgroundTilemap[x][y] = TileType.fromId(bb.getInt());
                     metadataMap[x][y] = new TileMetadata();
