@@ -4,7 +4,7 @@
 - [x] Player sprite rendering
 - [x] Player physics
 - [x] Debug UI
-- [ ] Background Tiles
+- [x] Background Tiles
 - [ ] World Generation
   - [ ] Mapping various criteria to noise maps
     - [ ] Humidity
@@ -19,4 +19,5 @@
         - [ ] Strength of fault determines how extreme/tall the mountains will be
         - [ ] if strength is high enough, the mountain may be a volcano.
   - [ ] Structures
-
+- [ ] Entities
+- [ ] 

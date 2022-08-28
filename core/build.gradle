@@ -27,4 +27,5 @@ dependencies {
     api "com.esotericsoftware.spine:spine-libgdx:3.6.53.1"
     api "org.apache.commons:commons-lang3:$apacheCommonLang3Version"
     api "com.google.code.gson:gson:$gsonVersion"
+    api "com.maltaisn:msdf-gdx:$msdfVersion"
 }

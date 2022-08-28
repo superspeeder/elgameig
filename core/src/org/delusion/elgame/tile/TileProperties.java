@@ -95,5 +95,8 @@ public class TileProperties {
             return new TileProperties(solid, visible, dropFunc, breakingTools, hardness, emmission, breakingHealth);
         }
 
+        public Builder instantMine() {
+            return breakingHealth(0);
+        }
     }
 }

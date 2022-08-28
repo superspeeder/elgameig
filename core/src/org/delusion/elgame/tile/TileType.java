@@ -35,6 +35,10 @@ public class TileType {
         mainAtlas = new TextureAtlas(Gdx.files.internal("textures/tileAtlas.atlas"));
     }
 
+    public static boolean isSolid(TileType tile) {
+        return tile != null && tile.getProperties().solid;
+    }
+
     public int getId() {
         return id;
     }
