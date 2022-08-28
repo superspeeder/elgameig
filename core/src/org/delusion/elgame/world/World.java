@@ -343,7 +343,14 @@ public class World implements SimpleRenderable, Disposable {
     }
 
     public boolean canPlaceAt(Vector2i tilePos, TileType ttype) {
-        return getTile(tilePos).getNow(null) == TileTypes.Air && !(ttype.getProperties().solid & collidesWithEntities(tilePos));
+        boolean properAdj = false;
+        if (TileType.isSolid(getTileIfAvailable(tilePos.x - 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x + 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x, tilePos.y - 1))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x, tilePos.y + 1))) properAdj = true;
+        else if (TileType.isSolid(getTileBgIfAvailable(tilePos.x, tilePos.y))) properAdj = true;
+
+        return getTile(tilePos).getNow(null) == TileTypes.Air && !(ttype.getProperties().solid & collidesWithEntities(tilePos)) && properAdj;
     }
 
     private boolean collidesWithEntities(Vector2i tilePos) {
@@ -354,7 +361,18 @@ public class World implements SimpleRenderable, Disposable {
     }
 
     public boolean canPlaceAtBg(Vector2i tilePos) {
-        return getTileBg(tilePos).getNow(null) == TileTypes.Air;
+        boolean properAdj = false;
+        if (TileType.isSolid(getTileIfAvailable(tilePos.x - 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x + 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x, tilePos.y - 1))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x, tilePos.y + 1))) properAdj = true;
+        else if (TileType.isSolid(getTileIfAvailable(tilePos.x, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileBgIfAvailable(tilePos.x - 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileBgIfAvailable(tilePos.x + 1, tilePos.y))) properAdj = true;
+        else if (TileType.isSolid(getTileBgIfAvailable(tilePos.x, tilePos.y - 1))) properAdj = true;
+        else if (TileType.isSolid(getTileBgIfAvailable(tilePos.x, tilePos.y + 1))) properAdj = true;
+
+        return getTileBg(tilePos).getNow(null) == TileTypes.Air && properAdj;
     }
 
     public CompletableFuture<TileType> getTileBg(Vector2i tilePos) {
